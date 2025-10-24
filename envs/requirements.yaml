@@ -1,0 +1,10 @@
+name: decode
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12.0
+  - pandas=2.1.1
+  - snakemake=7.32.4
+  - mamba=1.5.2 # used as frontend instead of conda by default
+

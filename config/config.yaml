@@ -1,0 +1,142 @@
+# NOTE
+#   Do NOT push user-specific changes to the repository!
+#   Change settings tagged with "USER_INPUT" before using this file.
+
+##################################################
+# STEPS
+
+# Steps to be done
+# steps: ["profiles", "assembly", "mags", "analysis"] # USER_INPUT
+steps: ["profiles"]
+
+##################################################
+# INPUT
+
+# dataset tag/name (will be used for some file/folder names)
+tag: "skyline"
+
+# working directory (will include links to raw data, logs, results)
+workdir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/analysis" # USER_INPUT
+
+# internal databases (created by the pipeline; external databases should be defined elsewhere)
+dbsdir: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases" # USER_INPUT (do NOT change if on iris, HPC @Uni.lu)
+
+# samples (if a relative path, relative to this repo)
+samples: "config/skyline_samples.tsv" # USER_INPUT
+
+# path to the metadata (if a relative path, relative to this repo)
+metadata: "data" # USER_INPUT
+
+# path to the results folder
+results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/results"
+
+##################################################
+# SLURM PARAMETERS
+slurm_partitions:
+  highmem:
+    name: "ei-largemem"
+    min_mem: 550
+    max_mem: 6000
+    min_threads: 0
+    max_threads: 1024
+  default:
+    name: "ei-medium,ei-long"
+    min_mem: 0
+    max_mem: 256
+    min_threads: 0
+    max_threads: 32
+
+
+##################################################
+# TOOLS & DATA(BASES)
+# PREPROCESSING
+trim_galore:
+  threads: 8
+
+fastqc:
+  threads: 8
+
+# SINGLEM
+# # https://wwood.github.io/singlem/Installation
+singlem:
+  threads: 64
+  db: "S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb"  # export SINGLEM_METAPACKAGE_PATH='/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/singlem/S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb'
+
+# FILTERING 
+filter:
+  fasta: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/mice_filtering/all_mice_and_human.fa.gz"
+
+# CLASSIFICATION
+kraken2:
+  url: "https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_20230605.tar.gz"
+  db: "/hdd0/susbus/databases/kraken2/pluspfp/"
+  confidence: 0.5
+  contig_confidence: 0.2
+  threads: 12
+  read: 150
+  level: "S" # https://github.com/jenniferlu717/Bracken/issues/117
+  contig_level: "P" # set to phylum since many samples were unclassified at the Species, Genus, Family and Order levels
+
+# KAIJU
+kaiju:
+  url: "https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_nr_euk_2023-05-10.tgz"
+  threads: 4
+  level: "species"
+  fmi: "/hdd0/susbus/databases/kaiju/kaiju_db_nr_euk.fmi"
+  nodes: "/hdd0/susbus/databases/kaiju/nodes.dmp"
+  names: "/hdd0/susbus/databases/kaiju/names.dmp"
+
+# Struo2 database from the Ruth Ley lab
+struo2_kraken2:
+  db: "/hdd0/susbus/databases/kraken2/"
+  threads: 12
+
+# Bracken
+# Bracken installed based on information here: https://github.com/jenniferlu717/Bracken
+bracken:
+  bin: "/hdd0/susbus/tools/Bracken/bracken"
+  combine: "/hdd0/susbus/tools/Bracken/analysis_scripts/combine_bracken_outputs.py"
+
+# MetaPhlan v4.2.3
+metaphlan:
+  threads: 8
+  bowtie2db: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/metaphlan/20251019"
+  index: "mpa_vJan25_CHOCOPhlAnSGB_202503"
+  unknown_estimation: false
+  sensible_defaults: true
+
+# MEGAHIT
+# https://github.com/voutcn/megahit
+megahit:
+  threads: 12
+  coassembly_threads: 70
+
+# DE-DUPLICATION
+clumpify:
+  threads: 64
+  dupedist: 12000
+  groups: 50
+  memory: "1600g"
+
+# ANNOTATION
+prodigal:
+  threads: 8
+
+# Eukaryotes
+eukulele:
+  threads: 64
+  db: "phylodb"
+  aligner: "diamond"  # options: "blast" or "diamond"
+  scratch: "/hdd0/susbus/socd/results/eukulele_scratch"
+  ref_dir: "/hdd0/susbus/databases"
+
+# MAPPING
+bwa:
+  threads: 10
+  map_threads: 16
+
+# http://www.htslib.org/doc/samtools.html
+samtools:
+  sort:
+    chunk_size: "4G"
+    chunk_size_bigmem: "16G"  

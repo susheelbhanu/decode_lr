@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+title: "main config file"
+
+properties:
+  tag:
+    type: string
+  workdir:
+    type: string
+  resultsdir:
+    type: string
+  dbsdir:
+    type: string
+  samples:
+    type: string
+
+required:
+  - tag
+  - workdir
+  - dbsdir
+  - samples

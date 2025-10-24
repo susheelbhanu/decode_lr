@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - blast=2.5.0
+  - kraken2=2.1.2

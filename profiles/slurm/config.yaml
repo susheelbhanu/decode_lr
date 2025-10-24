@@ -1,0 +1,65 @@
+# config for execution on HPC cluster using slurm
+
+# NOTE: change all parameters with the tag "USER_INPUT" !!!
+
+# main workflow snakemake file
+snakefile: "workflow/Snakefile"
+
+# total number of cores and jobs
+cores: 100
+jobs: 100
+# for local rules: use at most N cores of the host machine in parallel
+local-cores: 1
+
+# config file(s)
+configfile:
+  - "config/config.yaml" # USER_INPUT (in general, it should not be changed)
+
+# resources
+#default-resources:
+#  - tmpdir="/tmp" # USER_INPUT
+#  - partition="ei-medium,ei-long" # USER_INPUT
+#  - mem_mb=1000
+#  - slurm_account=tgac
+#  - exclude="n83029" # USER_INPUT
+# resources (fallbacks if a rule doesn't set them)
+default-resources:
+  - tmpdir="/tmp"   # USER_INPUT
+  - slurm_account=tgac
+  - exclude="n83029"
+  - slurm_partition="ei-medium,ei-long"   # fallback if a rule doesn't compute one; # USER_INPUT
+  - mem_mb=10000                           # fallback MB; # USER_INPUT
+  - time="6:00:00" 
+
+# dynamic submission: partition/mem from {resources.*}, qos/time from cluster-config
+cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"
+
+# go on with independent jobs if a job fails
+keep-going: True
+# re-run all jobs the output of which is recognized as incomplete
+rerun-incomplete: True
+# print the reason for each executed rule
+reason: True
+# print out the shell commands that will be executed
+printshellcmds: True
+# conda
+use-conda: True
+conda-prefix: "/hpc-home/kar23heg/conda_envs/decode" # USER_INPUT
+# wait given seconds if an output file of a job is not present after the job finished
+latency-wait: 120
+
+# number of times to restart failing jobs
+restart-times: 3
+# slurm config (ABSOLUTE PATH !!!)
+cluster-config: "/hpc-home/kar23heg/decode_pipeline/profiles/slurm/slurm.yaml" # USER_INPUT
+# max. number of cluster/drmaa jobs per second
+max-jobs-per-second: 1
+# max. number of job status checks per second
+max-status-checks-per-second: 10
+# trigger for rerunning jobs
+rerun-trigger: "mtime"
+
+# singularity
+use-singularity: True
+singularity-prefix: "/hpc-home/kar23heg/singularity_cache"  # USER_INPUT
+# singularity-args: "--bind /ei,/hpc-home"
