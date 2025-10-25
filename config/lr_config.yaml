@@ -43,7 +43,7 @@ ont_file: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/
 
 # --- File Naming Pattern ---
 # !!! ADJUST AS NEEDED !!!
-hifi_file_pattern: "{sample}_trimmed.fastq.gz" 
+hifi_file_pattern: "{sample}/{sample}_trimmed.fastq.gz" 
 
 # --- Sample Lists ---
 samples:
