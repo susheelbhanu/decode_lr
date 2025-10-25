@@ -44,7 +44,7 @@ latency-wait: 120
 # number of times to restart failing jobs
 restart-times: 3
 # slurm config (ABSOLUTE PATH !!!)
-cluster-config: "/hpc-home/kar23heg/decode_pipeline/profiles/slurm/slurm.yaml" # USER_INPUT
+cluster-config: "/hpc-home/kar23heg/decode_pipeline/profiles/slurm/lr_slurm.yaml" # USER_INPUT
 # max. number of cluster/drmaa jobs per second
 max-jobs-per-second: 1
 # max. number of job status checks per second
