@@ -1,115 +1,190 @@
-# DECODE pipeline
+# 🧬 DECODE-LR: Long-Read Assembly and Binning Workflow
 
-## About
-**Long read analysis workflow**
+## Overview
+**DECODE-LR** is a Snakemake-based workflow for **long-read metagenomic assembly and binning**, optimised for **EI-HPC**.  
+It supports **PacBio HiFi** and **Oxford Nanopore (ONT)** data, and automates:
 
-Repository containing [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow for 
-- running [Kraken2](https://ccb.jhu.edu/software/kraken/) taxonomy on preprocessed reads
-- assembly with [Megahit](https://github.com/voutcn/megahit), [SPAdes](https://github.com/ablab/spades) and [PLASS](https://github.com/soedinglab/plass)
-- gene calls with [Prodigal](https://github.com/hyattpd/Prodigal)
-- eukaryote classification with [EUKulele](https://github.com/AlexanderLabWHOI/EUKulele)
- 
-# Setup
+1. **Assembly** using [metaMDBG](https://github.com/Roy-Lab/metaMDBG)  
+2. **Read mapping** using [minimap2](https://github.com/lh3/minimap2)  
+3. **Binning** using [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/)
 
-## Cloning the repository
+The workflow is fully SLURM-aware and designed for scalable hybrid assemblies (HiFi + ONT).
 
-```bash
-git clone --recurse-submodules <repo https/ssh URL>
+---
+
+## 📁 Repository Structure
+
 ```
-If you cloned the project but forgot `--recurse-submodules` do
-```bash
-git submodule update --init --recursive
-```
-in the cloned repository.
-
-
-## Sample setup
-Provide a `config/sample.tsv` file in the following format
-
-|Sample_ID | sR1 | sR2 | long_reads | group |
-|-----------|-----|-----|------------|-------|
-| sample1 | DIRECTORY_PATH/sample1_R1.fastq | DIRECTORY_PATH/sample1_R2.fastq | | A |
-| sample2 | DIRECTORY_PATH/sample2_R1.fastq | DIRECTORY_PATH/sample2_R2.fastq | | A |
-| sample3 | DIRECTORY_PATH/sample3_R1.fastq | DIRECTORY_PATH/sample3_R2.fastq | | B |
-| sample4 | DIRECTORY_PATH/sample4_R1.fastq | DIRECTORY_PATH/sample4_R2.fastq | | B |
-
-- `long_reads`: leave column blank if not available
-- `group`: sample groupings for co-assembly and co-binning 
-
-
-## Databases
-Downloaded dbs on `2023-09-13` as indicated below 
-- from the [Kraken2 database page](https://benlangmead.github.io/aws-indexes/k2)
-    - `/hdd0/susbus/databases/kraken2/pluspfp`: [pluspfp](https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_20230605.tar.g)
-    - `/hdd0/susbus/databases/kraken2/standard_20230913`: [standard](https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230605.tar.gz)
-
-## BRACKEN
-- Prior to running, install [bracken](https://github.com/jenniferlu717/Bracken)
-- After installation, set *execute* permissions for the `bracken` & `combine_bracken_outputs.py` script
-```bash
-chmod +x PATH_to_INSTALL_DIR/Bracken/bracken
-chmod +x PATH_to_INSTALL_DIR/Bracken/analyses_scripts/combine_bracken_outputs.py
+decode_lr/
+├── config/
+│   └── lr_config.yaml                 # user-editable config
+├── envs/                              # conda environment YAMLs
+├── schemas/                           # JSON/YAML validation schemas
+├── workflow/
+│   ├── metamdbg_Snakefile             # metaMDBG assemblies
+│   ├── metamdbg_binning_Snakefile     # mapping + binning
+│   ├── rules/init.smk                 # setup, helpers, and resource logic
+│   └── profiles/slurm/                # EI-HPC SLURM runtime configs
+├── scripts/                           # helper scripts (if any)
+├── lr_sbatch.sh                       # EI-HPC submission script
+└── results/                           # all outputs (assemblies, bins, logs)
 ```
 
-## Conda
+---
 
-[Conda user guide](https://docs.conda.io/projects/conda/en/latest/user-guide/index.html)
+## ⚙️ Configuration (`config/lr_config.yaml`)
 
-```bash
-# install miniconda3
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-chmod u+x Miniconda3-latest-Linux-x86_64.sh
-./Miniconda3-latest-Linux-x86_64.sh # follow the instructions
+Example:
+
+```yaml
+# Input directories
+hifi_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi"
+ont_file: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/ONT/CEHSoil_filtered_trimmed.fastq.gz"
+
+# Sample groups
+samples:
+  bulk:
+    - "b10_d3_0200_con"
+    - "b20_d3_1400_bio"
+    - "b26_t3_con"
+  rhizo:
+    - "r15_d3_1400_con"
+    - "r30_d3_0200_bio"
+
+# Hybrid assembly
+hybrid_individual_sample: "b26_t3_con"
+
+# Tool settings
+metamdbg:
+  threads: 48
+  mem_gb: 250
+  opts: ""
+
+minimap2:
+  threads: 16
+  hifi_preset: "-ax map-hifi"
+  ont_preset: "-ax map-ont"
+
+metabat2:
+  min_contig_length: 2000
+  opts: "--unbinned"
+
+# Optional SLURM partitions
+slurm_partitions:
+  highmem:
+    name: "ei-largemem"
+    min_mem: 750
+    max_mem: 6000
 ```
 
-Create the main `snakemake` environment
+💡 *Paths must be absolute on EI-HPC.*
+
+---
+
+## 🧪 Conda Environments
+
+Create conda environments (once):
 
 ```bash
-# create venv
-conda env create -f envs/requirements.yaml
-conda activate decode``
+conda env create -f envs/metamdbg.yaml
+conda env create -f envs/mapping.yaml
+conda env create -f envs/metabat2.yaml
 ```
 
+Activate the Snakemake environment before submission:
 
-## Configuration
-
-All config files are stored in the folder `config/`
-
-**Important Note(s)**: 
-- Edit the paths to 
-    - `data_dir`: *eg:* `/ssd0/susbus/socd/data/preprocessed`
-    - `results_dir`: *eg:* `/ssd0/susbus/socd/results`
-    - `env_dir`: *eg:* `/ssd0/susbus/socd/kraken2/envs`
-    - ***`databases`***: *eg:* `/hdd0/susbus/databases/kraken2/pluspfp`
-
-- Provide a `sample.tsv` in the *config* folder. See format above.
-
-All workflows have a `snakemake` profile (`workflow/profiles/slurm/`) including a `snakemake` config file (`config.yaml`) and a `slurm` config file (`slurm.yaml`) for execution on the HPC cluster.
-
-See the `README.md` inside each workflow folder for more information on the executed steps and configuration.
-
-
-## IMPORTANT
-Config files:
-- `config/config.yaml`: main config file for all workflows
-- `workflow/profiles/slurm/slurm.yaml`: `slurm` config
-- `workflow/profiles/slurm/config.yaml`: `snakemake` parameters
-
-Before executing the workflow, check **all** config files listed above, especially lines tagged with `USER_INPUT`.
-
-It is **not** recommended to run the workflow on the access node:
-though all computation-intensive steps should be submitted via `slurm`, it is better to avoid doing that especially for (very) long jobs.
-
-
-## EXECUTION
 ```bash
-# start an interactive session
+conda activate decode
+```
 
-# activate the main conda env.
+---
+
+## 🧰 EI-HPC Profile
+
+`workflow/profiles/slurm/config.yaml` defines default resources and SLURM options, e.g.:
+
+```yaml
+default-resources:
+  - slurm_partition="ei-medium,ei-long"
+  - mem_mb=10000
+  - time="6:00:00"
+cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"
+```
+
+Each rule computes:
+```python
+resources:
+    mem_mb = resource_mem,
+    slurm_partition = resource_partition
+```
+
+Fallbacks apply automatically from the profile if partitions are not explicitly set.
+
+---
+
+## 🚀 Execution on EI-HPC
+
+The pipeline is launched through the provided SLURM wrapper script.
+
+### 1️⃣ Submit the long-read assembly workflow
+```bash
+sbatch lr_sbatch.sh workflow/metamdbg_Snakefile config/lr_config.yaml
+```
+
+### 2️⃣ Submit the mapping + binning workflow
+```bash
+sbatch lr_sbatch.sh workflow/metamdbg_binning_Snakefile config/lr_config.yaml
+```
+
+### Example `lr_sbatch.sh`
+
+```bash
+#!/bin/bash
+#SBATCH -p ei-medium
+#SBATCH -t 72:00:00
+#SBATCH -J decode_lr
+#SBATCH -o slurm/%x-%j.out
+#SBATCH -e slurm/%x-%j.err
+#SBATCH --cpus-per-task=48
+#SBATCH --mem=250G
+#SBATCH --qos=ei-medium
+
+module load mambaforge/23.3.1
 conda activate decode
 
-# dry-run
-snakemake --profile profiles/slurm --dry-run
-# execute w/ slurm
-snakemake --profile profiles/slurm
+snakemake -s $1 --configfile $2 --profile workflow/profiles/slurm --use-conda --cores 48
 ```
+
+---
+
+## 📂 Output Summary
+
+| Step | Output directory | Description |
+|------|------------------|--------------|
+| Individual assemblies | `results/assemblies/hifi_individual/{sample}/` | metaMDBG contigs per HiFi sample |
+| Co-assemblies (bulk/rhizo) | `results/assemblies/hifi_coassembly_*` | Combined assemblies by group |
+| Hybrid assembly (HiFi + ONT) | `results/assemblies/hybrid_*` | Cross-technology assembly |
+| Mapping | `results/mapping/{assembly_type}/` | BAMs, indices |
+| Binning | `results/binning/{assembly_type}/` | MAG bins + completeness |
+
+---
+
+## 🧠 Tips
+- Always submit via `sbatch lr_sbatch.sh` — do **not** run directly on the login node.  
+- Use `--rerun-incomplete` to resume interrupted runs safely.  
+- Inspect resource selection before launch:  
+  ```bash
+  snakemake -s workflow/metamdbg_Snakefile --configfile config/lr_config.yaml -npr --scheduler greedy
+  ```
+
+---
+
+## 📘 Citation
+
+Please cite the core tools used:
+
+- **metaMDBG** – Roy et al., *Nature Methods* 2023  
+- **MetaBAT2** – Kang et al., *PeerJ* 2019  
+- **Minimap2** – Li et al., *Bioinformatics* 2018  
+- **Snakemake** – Mölder et al., *Nature Methods* 2021  
+
