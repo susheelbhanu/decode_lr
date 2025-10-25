@@ -32,22 +32,6 @@ TARGETS = []
 
 # Include rules and add targets based on the config file
 
-# PROFILE
-if "profiles" in config["steps"]:
-    include:
-        "rules/preprocessing.smk"
-    include:
-        "rules/kraken2.smk"
-    include:
-        "rules/metaphlan.smk"
-    include:
-        "rules/singlem.smk"
-    TARGETS += [
-        "status/preprocessing.done",
-        "status/taxonomy.done",
-        "status/metaphlan.done",
-        "status/singlem.done"
-    ]
 
 # ASSEMBLY
 if "lr_assembly" in config["steps"]:
@@ -63,20 +47,6 @@ if "lr_mags" in config["steps"]:
         "rules/lr_binning.smk"
     TARGETS += [
         "status/lr_binning.done"
-    ]
-
-# ANALYSES
-if "analysis" in config["steps"]:
-    include:
-        "rules/annotation.smk"
-    include:
-        "rules/card.smk"
-    include:
-        "rules/eggnog.smk"
-    TARGETS += [
-        "status/annotation.done",
-        "status/card.done",
-        "status/eggnog.done"
     ]
 
 

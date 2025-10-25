@@ -19,7 +19,7 @@ tag: "skyline_lr"
 workdir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/analysis" # USER_INPUT
 
 # internal databases (created by the pipeline; external databases should be defined elsewhere)
-dbsdir: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases" # USER_INPUT (do NOT change if on iris, HPC @Uni.lu)
+dbsdir: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases" # USER_INPUT (do NOT change if on EI-HPC)
 
 # samples (if a relative path, relative to this repo)
 samples: "config/skyline_samples.tsv" # USER_INPUT
