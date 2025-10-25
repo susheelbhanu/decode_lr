@@ -54,6 +54,7 @@ def get_rhizo_hifi_reads(_wildcards=None):
     return " ".join(hifi_path_for_sample(s) for s in RHIZO_SAMPLES)
 
 # --- 3) Final targets ---
+ruleorder: map_reads_to_assembly > samtools_sort_index
 
 rule all:
     input:
@@ -241,13 +242,14 @@ rule minimap2_index:
         "(date && minimap2 -d {output} {input} && date) &> >(tee {log})"
 
 rule map_reads_to_assembly:
-    """Map HiFi or ONT reads to a specific assembly."""
     input:
         idx      = os.path.join(mapping_dir("{assembly_type}"), "contigs.mmi"),
         assembly = os.path.join(RESULTS_DIR, "assemblies/{assembly_type}/contigs.fasta"),
         reads    = lambda wc: hifi_path_for_sample(wc.sample) if wc.read_tech == "hifi" else ONT_FILE
     output:
-        bam = os.path.join(mapping_dir("{assembly_type}"), "{sample}.{read_tech}.bam")
+        # sample cannot contain '.', read_tech must be 'hifi' or 'ont'
+        bam = os.path.join(mapping_dir("{assembly_type}"),
+                           "{sample,[^\\.]+}.{read_tech,(hifi|ont)}.bam")
     params:
         preset = lambda wc: config["minimap2"]["hifi_preset"] if wc.read_tech == "hifi" else config["minimap2"]["ont_preset"]
     threads:
@@ -256,8 +258,6 @@ rule map_reads_to_assembly:
         os.path.join(ENV_DIR, "mapping.yaml")
     log:
         os.path.join(LOG_DIR, "map_reads/{assembly_type}/{sample}.{read_tech}.log")
-    benchmark:
-        os.path.join(BENCHMARK_DIR, "map_reads/{assembly_type}/{sample}.{read_tech}.txt")
     message:
         "minimap2: map {wildcards.read_tech} reads from {wildcards.sample} to {wildcards.assembly_type}"
     shell:
@@ -265,20 +265,20 @@ rule map_reads_to_assembly:
         "samtools view -@ {threads} -bS - > {output.bam} && date) &> >(tee {log})"
 
 rule samtools_sort_index:
-    """Sort and index BAM files."""
     input:
-        os.path.join(mapping_dir("{assembly_type}"), "{sample}.{read_tech}.bam")
+        os.path.join(mapping_dir("{assembly_type}"),
+                     "{sample,[^\\.]+}.{read_tech,(hifi|ont)}.bam")
     output:
-        bam = os.path.join(mapping_dir("{assembly_type}"), "{sample}.{read_tech}.sorted.bam"),
-        bai = os.path.join(mapping_dir("{assembly_type}"), "{sample}.{read_tech}.sorted.bam.bai")
+        bam = os.path.join(mapping_dir("{assembly_type}"),
+                           "{sample,[^\\.]+}.{read_tech,(hifi|ont)}.sorted.bam"),
+        bai = os.path.join(mapping_dir("{assembly_type}"),
+                           "{sample,[^\\.]+}.{read_tech,(hifi|ont)}.sorted.bam.bai")
     threads:
         config["samtools"]["threads"]
     conda:
         os.path.join(ENV_DIR, "mapping.yaml")
     log:
         os.path.join(LOG_DIR, "samtools_sort/{assembly_type}/{sample}.{read_tech}.log")
-    benchmark:
-        os.path.join(BENCHMARK_DIR, "samtools_sort/{assembly_type}/{sample}.{read_tech}.txt")
     message:
         "samtools: sort+index {wildcards.assembly_type}/{wildcards.sample}.{wildcards.read_tech}"
     shell:
@@ -294,8 +294,11 @@ def get_bams_for_binning(wc):
     assembly_type = wc.assembly_type
     bams = []
     if assembly_type == "hybrid_b26":
-        bams.append(os.path.join(mapping_dir(assembly_type), f"{HYBRID_INDIVIDUAL}.hifi.sorted.bam"))
-        bams.append(os.path.join(mapping_dir(assembly_type), "ont.ont.sorted.bam"))  # if you map ONT with sample 'ont'
+        # HiFi for the hybrid individual sample
+        bams.append(os.path.join(mapping_dir(assembly_type),
+                                 f"{HYBRID_INDIVIDUAL}.hifi.sorted.bam"))
+        # ONT mapped BAM (sample name 'ont')
+        bams.append(os.path.join(mapping_dir(assembly_type), "ont.ont.sorted.bam"))
     elif assembly_type == "hybrid_coassembly_bulk":
         for s in BULK_SAMPLES:
             bams.append(os.path.join(mapping_dir(assembly_type), f"{s}.hifi.sorted.bam"))
@@ -313,7 +316,8 @@ rule metabat2_binning:
     params:
         min_contig = config["metabat2"]["min_contig_length"],
         opts = config["metabat2"]["opts"],
-        bam_list = lambda i: " ".join(i.bams)
+        # NOTE: accept the *named* 'input' argument and join its 'bams' list
+        bam_list = lambda wildcards, input: " ".join(input.bams)
     threads:
         config["metamdbg"]["threads"]
     conda:
@@ -327,3 +331,4 @@ rule metabat2_binning:
     shell:
         "(date && metabat2 -i {input.assembly} -a {params.bam_list} "
         "-o {output.out_prefix} -m {params.min_contig} -t {threads} {params.opts} && date) &> >(tee {log})"
+
