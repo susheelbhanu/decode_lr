@@ -64,7 +64,7 @@ hybrid_individual_sample: "b26_t3_con"
 
 # --- Tool Parameters ---
 metamdbg:
-  threads: 48
+  threads: 32
   mem_gb: 1000 
   k_min: 15
   k_max: 27
@@ -95,19 +95,19 @@ resources:
 
 ###################################################
 ## SLURM PARAMETERS
-#slurm_partitions:
-#  highmem:
-#    name: "ei-largemem"
-#    min_mem: 550
-#    max_mem: 6000
-#    min_threads: 0
-#    max_threads: 1024
-#  default:
-#    name: "ei-medium,ei-long"
-#    min_mem: 0
-#    max_mem: 256
-#    min_threads: 0
-#    max_threads: 32
+slurm_partitions:
+  highmem:
+    name: "ei-largemem"
+    min_mem: 550
+    max_mem: 6000
+    min_threads: 0
+    max_threads: 1024
+  default:
+    name: "ei-medium,ei-long"
+    min_mem: 0
+    max_mem: 256
+    min_threads: 0
+    max_threads: 32
 #
 #
 ###################################################
