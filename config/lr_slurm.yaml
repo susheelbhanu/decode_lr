@@ -1,0 +1,283 @@
+__default__:
+  time: "7-00:00:00"
+  partition: "ei-largemem"
+  qos: "normal"
+  mem: "750G"
+  job-name: "LR_DECODE.{rule}"
+
+input_short:
+  partition: "ei-medium"
+  time: "0-00:40:00"
+
+short_preproc:
+  partition: "ei-long"
+  time: "2-00:00:00"
+
+trim_galore_pe:
+  partition: "ei-medium"
+  time: "0-04:00:00"
+
+index:
+  partition: "ei-medium"
+  time: "2-00:00:00"
+
+map_to_mask:
+  partition: "ei-medium"
+  time: "0-06:00:00"
+
+bam_to_fastq:
+  partition: "ei-medium"
+  time: "0-08:00:00"
+
+fastqc:
+  partition: "ei-medium"
+  time: "0-04:00:00"
+
+multiqc_fastqc:
+  partition: "ei-medium"
+  time: "0-10:00:00"
+
+megahit:
+  partition: "ei-medium"
+  time: "1-00:00:00"
+
+spades:
+  partition: "ei-medium"
+  time: "1-00:00:00"
+
+plass:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 72
+  mem: "750G"
+
+kaiju_classify:
+  partition: "ei-largemem"
+  time: "0-06:00:00"
+  c: 72
+  mem: "500G"
+
+kraken2:
+  partition: "ei-short"
+  time: "0-06:00:00"
+  mem: "750G"
+
+bracken:
+  partition: "ei-medium"
+  time: "0-06:00:00"
+
+run_singlem:
+  partition: "ei-largemem"
+  time: "0-06:00:00"
+  c: 72
+  mem: "500G"
+
+summarise_singlem:
+  partition: "ei-medium"
+  time: "0-01:00:00"
+
+modify_fasta:
+  time: "0-00:15:00"
+
+ass_cat:
+  time: "0-01:00:00"
+
+cat_mmseqs2:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 96
+  mem: "750G"
+
+cat_filter_length:
+  partition: "ei-medium"
+  time: "0-01:00:00"
+
+cat_bin_mapping_index:
+  partition: "ei-medium"
+  time: "0-06:00:00"
+
+filter_mapping:
+  partition: "ei-medium"
+  time: "1-00:00:00"
+
+metabat2_mapping:
+  partition: "ei-medium"
+  time: "1-00:00:00"
+
+metabat2:
+  partition: "ei-medium"
+  time: "2-00:00:00"
+
+concoct_prepare:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 72
+  mem: "500G"
+
+concoct:
+  partition: "ei-largemem"
+  time: "3-00:00:00"
+  c: 72
+  mem: "500G"
+
+metabinner_coverage:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 72
+
+metabinner_prepare:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 84
+  mem: "1000G"
+
+metabinner:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+  c: 72
+  mem: "500G"
+
+semibin:
+  partition: "ei-largemem"
+  time: "3-00:00:00"
+  c: 96
+  mem: "650G"
+
+prepare_dasTool:
+  partition: "ei-medium"
+  time: "0-04:00:00"
+
+dasTool:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 64
+  mem: "500G"
+
+checkm:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 72
+  mem: "500G"
+
+drep:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 72
+  mem: "500G"
+
+prodigal:
+  partition: "ei-medium"
+  time: "0-04:00:00"
+
+run_genomad:
+  partition: "ei-medium"
+  time: "0-12:00:00"
+
+annotation_rgi:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 48
+  mem: "500G"
+
+emapper:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 24
+  mem: "500G"
+
+emapper_final:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 24
+  mem: "500G"
+
+gtdbtk:
+  partition: "ei-largemem"
+  time: "1-12:00:00"
+  c: 112
+  mem: "1600G"
+
+checkm_final:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+
+coassembly_megahit:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+  c: 112
+  mem: "1600G"
+
+coassembly_spades:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+  c: 112
+  mem: "1600G"
+
+coassembly_plass:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+  c: 112
+  mem: "1600G"
+
+metamdbg:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 112
+  mem: "1600G"
+
+coassembly_mmseqs2:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 64
+  mem: "1600G"
+
+eukrep_fasta:
+  partition: "ei-largemem"
+  time: "1-00:00:00"
+  c: 36
+  mem: "500G"
+
+coverm:
+  partition: "ei-largemem"
+  time: "1-12:00:00"
+  c: 72
+  mem: "500G"
+
+eukrep_concoct_prepare:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 72
+  mem: "500G"
+
+eukrep_concoct:
+  partition: "ei-largemem"
+  time: "2-00:00:00"
+  c: 36
+  mem: "500G"
+
+concoct_fasta:
+  partition: "ei-medium"
+  time: "0-10:00:00"
+
+coassembly_prodigal:
+  partition: "ei-medium"
+  time: "0-12:00:00"
+
+coassembly_annotation_rgi:
+  partition: "ei-largemem"
+  time: "0-12:00:00"
+  c: 48
+  mem: "500G"
+
+coassembly_emapper:
+  partition: "ei-largemem"
+  time: "1-12:00:00"
+  c: 36
+  mem: "500G"
+
+coassembly_emapper_final:
+  partition: "ei-largemem"
+  time: "1-12:00:00"
+  c: 36
+  mem: "500G"
+
