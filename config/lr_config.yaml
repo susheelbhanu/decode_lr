@@ -6,14 +6,14 @@
 # STEPS
 
 # Steps to be done
-# steps: ["profiles", "lr_assembly", "mags", "analysis"] # USER_INPUT
+# steps: ["profiles", "lr_assembly", "lr_mags", "analysis"] # USER_INPUT
 steps: ["lr_assembly"]
 
 ##################################################
 # INPUT
 
 # dataset tag/name (will be used for some file/folder names)
-tag: "skyline"
+tag: "skyline_lr"
 
 # working directory (will include links to raw data, logs, results)
 workdir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/analysis" # USER_INPUT

@@ -3,7 +3,7 @@
 # NOTE: change all parameters with the tag "USER_INPUT" !!!
 
 # main workflow snakemake file
-snakefile: "workflow/Snakefile"
+snakefile: "workflow/metamdbg_Snakefile"
 
 # total number of cores and jobs
 cores: 100
@@ -13,15 +13,8 @@ local-cores: 1
 
 # config file(s)
 configfile:
-  - "config/config.yaml" # USER_INPUT (in general, it should not be changed)
+  - "config/lr_config.yaml" # USER_INPUT (in general, it should not be changed)
 
-# resources
-#default-resources:
-#  - tmpdir="/tmp" # USER_INPUT
-#  - partition="ei-medium,ei-long" # USER_INPUT
-#  - mem_mb=1000
-#  - slurm_account=tgac
-#  - exclude="n83029" # USER_INPUT
 # resources (fallbacks if a rule doesn't set them)
 default-resources:
   - tmpdir="/tmp"   # USER_INPUT
