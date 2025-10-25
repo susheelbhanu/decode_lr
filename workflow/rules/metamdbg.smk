@@ -34,7 +34,7 @@ rule metamdbg_hifi_individual:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_individual/{sample}.log")
     benchmark:
@@ -60,7 +60,7 @@ rule metamdbg_hifi_coassembly_rhizo:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_coassembly_rhizo.log")
     benchmark:
@@ -86,7 +86,7 @@ rule metamdbg_hifi_coassembly_bulk:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_coassembly_bulk.log")
     benchmark:
@@ -113,7 +113,7 @@ rule metamdbg_ont_individual:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_ont_individual_b26.log")
     benchmark:
@@ -141,7 +141,7 @@ rule metamdbg_hybrid_b26:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_hybrid_b26.log")
     benchmark:
@@ -169,7 +169,7 @@ rule metamdbg_hybrid_coassembly_bulk:
     threads:
         config["metamdbg"]["threads"]
     conda:
-        os.path.join(ENV_DIR, "metamdbg.yaml")
+        "metamdbg" # os.path.join(ENV_DIR, "metamdbg.yaml")
     log:
         os.path.join(LOG_DIR, "metamdbg_hybrid_coassembly_bulk.log")
     benchmark:
