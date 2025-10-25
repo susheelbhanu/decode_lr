@@ -6,6 +6,7 @@
 
 import os
 import re
+import os.path
 import pandas
 from snakemake.utils import validate
 
@@ -37,6 +38,18 @@ SAMPLES_FILE = os.path.abspath(config["samples"]) # samples: IDs and raw FASTQ f
 OLDPWD = os.path.abspath(os.getcwd()) # PWD before changing the working directory
 
 RESULTS_DIR = os.path.abspath(config["results_dir"])
+
+
+# NEW PATHS
+LOG_DIR = os.path.abspath(config["log_dir"])
+BENCHMARK_DIR = os.path.abspath(config["benchmark_dir"])
+
+BULK_SAMPLES = os.path.abspath(config["samples"]["bulk"])
+RHIZO_SAMPLES = os.path.abspath(config["samples"]["rhizo"])
+ALL_HIFI_SAMPLES = BULK_SAMPLES + RHIZO_SAMPLES
+
+HYBRID_INDIVIDUAL = os.path.abspath(config["hybrid_individual_sample"])
+ONT_FILE = os.path.abspath(config["ont_file"])
 
 ##################################################
 # EXECUTION
@@ -195,4 +208,34 @@ resource_mem = get_resource("mem")
 resource_partition = get_resource("partition")
 resource_threads = get_resource("threads")
 
+# ----------------------------------------------------
+# Functions for getting LR samples
+# ----------------------------------------------------
+def hifi_path_for_sample(sample: str) -> str:
+    """
+    Return the HiFi fastq path for a sample.
+    Normal layout: {hifi_dir}/{sample}/{sample}_trimmed.fastq.gz
+    Special-case for b26_t3_con: {hifi_dir}/{sample}/CEH_hifi_sample_trimmed.fastq.gz
+    """
+    base = os.path.abspath(config["hifi_dir"])
+    p1 = os.path.join(base, sample, f"{sample}_trimmed.fastq.gz")
+    p2 = os.path.join(base, sample, "CEH_hifi_sample_trimmed.fastq.gz")
+    if os.path.exists(p1):
+        return p1
+    if os.path.exists(p2):
+        return p2
+    # Fall back to canonical path so Snakemake raises a clear MissingInputException
+    return p1
+
+def get_hifi_reads(wildcards):
+    """Single-sample helper used by individual assembly rules."""
+    return hifi_path_for_sample(wildcards.sample)
+
+def get_bulk_hifi_reads(_wildcards=None):
+    """Space-separated HiFi files for bulk co-assembly."""
+    return " ".join(hifi_path_for_sample(s) for s in BULK_SAMPLES)
+
+def get_rhizo_hifi_reads(_wildcards=None):
+    """Space-separated HiFi files for rhizo co-assembly."""
+    return " ".join(hifi_path_for_sample(s) for s in RHIZO_SAMPLES)
 

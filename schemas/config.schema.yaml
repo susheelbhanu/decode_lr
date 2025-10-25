@@ -1,21 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 
-title: "main config file"
+title: "Main Snakemake Configuration Schema"
+description: "Schema defining the required structure and types for the main configuration file used in this workflow."
 
+type: object
 properties:
   tag:
     type: string
+    description: "A short identifier or tag for this workflow run (e.g., project name or version)."
+    minLength: 1
+
   workdir:
     type: string
+    description: "Absolute or relative path to the working directory where intermediate files are stored."
+    pattern: "^[^\\0]+$"
+
   resultsdir:
     type: string
+    description: "Directory path where final results will be written."
+    pattern: "^[^\\0]+$"
+
   dbsdir:
     type: string
+    description: "Path to the directory containing reference databases (e.g., CARD, GTDB, etc.)."
+    pattern: "^[^\\0]+$"
+
   samples:
-    type: string
+    description: "Path to a file (CSV, TSV, or YAML) listing sample identifiers and metadata, or an object containing sample definitions."
+    oneOf:
+      - type: string
+        pattern: "^[^\\0]+$"
+      - type: object
+        additionalProperties:
+          type: object
+          properties:
+            id:
+              type: string
+              description: "Sample identifier."
+            path:
+              type: string
+              description: "Path to the sample FASTQ or assembly file."
+          required:
+            - id
+            - path
 
 required:
   - tag
   - workdir
   - dbsdir
   - samples
+
+additionalProperties: false
