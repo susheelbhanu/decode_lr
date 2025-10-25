@@ -3,7 +3,7 @@
 # NOTE: change all parameters with the tag "USER_INPUT" !!!
 
 # main workflow snakemake file
-snakefile: "workflow/metamdbg_Snakefile"
+snakefile: "workflow/Snakefile"
 
 # total number of cores and jobs
 cores: 100

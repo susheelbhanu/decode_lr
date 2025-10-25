@@ -7,8 +7,6 @@ import os
 import os.path
 
 # --- Final targets ---
-ruleorder: map_reads_to_assembly > samtools_sort_index
-
 rule lr_assembly_all:
     input:
         # Individual HiFi assemblies
@@ -18,7 +16,9 @@ rule lr_assembly_all:
         os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta"),
         os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta"),
         # ONT-only
-        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta"),
+        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta")
+    output:
+        touch("status/lr_assembly.done")
 
 # --- Assemblies (metaMDBG) ---
 rule metamdbg_hifi_individual:
