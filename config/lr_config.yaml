@@ -28,7 +28,7 @@ samples: "config/skyline_samples.tsv" # USER_INPUT
 metadata: "data" # USER_INPUT
 
 # path to the results folder
-results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/results"
+results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results"
 
 # path to the envs folder
 env_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/envs"
