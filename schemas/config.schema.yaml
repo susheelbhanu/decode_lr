@@ -8,46 +8,36 @@ properties:
   tag:
     type: string
     description: "A short identifier or tag for this workflow run (e.g., project name or version)."
-    minLength: 1
 
   workdir:
     type: string
-    description: "Absolute or relative path to the working directory where intermediate files are stored."
-    pattern: "^[^\\0]+$"
 
   resultsdir:
     type: string
-    description: "Directory path where final results will be written."
-    pattern: "^[^\\0]+$"
 
   dbsdir:
     type: string
-    description: "Path to the directory containing reference databases (e.g., CARD, GTDB, etc.)."
-    pattern: "^[^\\0]+$"
 
   samples:
-    description: "Path to a file (CSV, TSV, or YAML) listing sample identifiers and metadata, or an object containing sample definitions."
+    description: "Either a path to a sample table file OR an inline object with bulk/rhizo arrays."
     oneOf:
+      # Option 1: external file path
       - type: string
-        pattern: "^[^\\0]+$"
+        pattern: "^/.+|^[^/].+$"   # any non-empty path
+      # Option 2: inline lists as used in your config
       - type: object
-        additionalProperties:
-          type: object
-          properties:
-            id:
+        properties:
+          bulk:
+            type: array
+            minItems: 1
+            items:
               type: string
-              description: "Sample identifier."
-            path:
+              pattern: "^[A-Za-z0-9._-]+$"
+          rhizo:
+            type: array
+            minItems: 1
+            items:
               type: string
-              description: "Path to the sample FASTQ or assembly file."
-          required:
-            - id
-            - path
-
-required:
-  - tag
-  - workdir
-  - dbsdir
-  - samples
-
-additionalProperties: false
+              pattern: "^[A-Za-z0-9._-]+$"
+        required: [bulk, rhizo]
+        additionalProperties: false

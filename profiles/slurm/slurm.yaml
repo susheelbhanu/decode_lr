@@ -1,8 +1,8 @@
 __default__:
-  time: "0-00:30:00"
+  time: "1-00:00:00"
   partition: "ei-medium"
   qos: "normal"
-  job-name: "decode.{rule}"
+  job-name: "LR_DECODE.{rule}"
 
 input_short:
   partition: "ei-medium"
@@ -12,5 +12,3 @@ short_preproc:
   partition: "ei-long"
   time: "2-00:00:00"
 
-run_singlem:
-  c: 32

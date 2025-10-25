@@ -36,6 +36,9 @@ rule minimap2_index:
         os.path.join(BENCHMARK_DIR, "minimap2_index/{assembly_type}.txt")
     message:
         "minimap2: index {wildcards.assembly_type}"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && minimap2 -d {output} {input} && date) &> >(tee {log})"
 
@@ -58,6 +61,9 @@ rule map_reads_to_assembly:
         os.path.join(LOG_DIR, "map_reads/{assembly_type}/{sample}.{read_tech}.log")
     message:
         "minimap2: map {wildcards.read_tech} reads from {wildcards.sample} to {wildcards.assembly_type}"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && minimap2 -t {threads} {params.preset} {input.assembly} {input.reads} | "
         "samtools view -@ {threads} -bS - > {output.bam} && date) &> >(tee {log})"
@@ -79,6 +85,9 @@ rule samtools_sort_index:
         os.path.join(LOG_DIR, "samtools_sort/{assembly_type}/{sample}.{read_tech}.log")
     message:
         "samtools: sort+index {wildcards.assembly_type}/{wildcards.sample}.{wildcards.read_tech}"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && samtools sort -@ {threads} -o {output.bam} {input} && "
         "samtools index -@ {threads} {output.bam} && date) &> >(tee {log})"
@@ -114,7 +123,7 @@ rule metabat2_binning:
     params:
         min_contig = config["metabat2"]["min_contig_length"],
         opts = config["metabat2"]["opts"],
-        # NOTE: accept the *named* 'input' argument and join its 'bams' list
+        # Accept the *named* 'input' argument and join its 'bams' list
         bam_list = lambda wildcards, input: " ".join(input.bams)
     threads:
         config["metamdbg"]["threads"]
@@ -126,7 +135,9 @@ rule metabat2_binning:
         os.path.join(BENCHMARK_DIR, "metabat2/{assembly_type}.txt")
     message:
         "MetaBAT2: binning {wildcards.assembly_type}"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metabat2 -i {input.assembly} -a {params.bam_list} "
         "-o {output.out_prefix} -m {params.min_contig} -t {threads} {params.opts} && date) &> >(tee {log})"
-

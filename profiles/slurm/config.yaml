@@ -22,7 +22,7 @@ default-resources:
   - exclude="n83029"
   - slurm_partition="ei-medium,ei-long"   # fallback if a rule doesn't compute one; # USER_INPUT
   - mem_mb=10000                           # fallback MB; # USER_INPUT
-  - time="6:00:00" 
+  - time="4-00:00:00" 
 
 # dynamic submission: partition/mem from {resources.*}, qos/time from cluster-config
 cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"

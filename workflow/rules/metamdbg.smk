@@ -6,7 +6,6 @@
 import os
 import os.path
 
-
 # --- Final targets ---
 ruleorder: map_reads_to_assembly > samtools_sort_index
 
@@ -22,7 +21,6 @@ rule lr_assembly_all:
         os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta"),
 
 # --- Assemblies (metaMDBG) ---
-
 rule metamdbg_hifi_individual:
     """Assemble each HiFi sample individually."""
     input:
@@ -43,6 +41,9 @@ rule metamdbg_hifi_individual:
         os.path.join(BENCHMARK_DIR, "metamdbg_hifi_individual/{sample}.txt")
     message:
         "metaMDBG asm: individual HiFi assembly of {wildcards.sample}"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-hifi {input.reads} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
@@ -66,6 +67,9 @@ rule metamdbg_hifi_coassembly_rhizo:
         os.path.join(BENCHMARK_DIR, "metamdbg_hifi_coassembly_rhizo.txt")
     message:
         "metaMDBG asm: HiFi co-assembly (rhizo)"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-hifi {params.read_list_str} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
@@ -89,6 +93,9 @@ rule metamdbg_hifi_coassembly_bulk:
         os.path.join(BENCHMARK_DIR, "metamdbg_hifi_coassembly_bulk.txt")
     message:
         "metaMDBG asm: HiFi co-assembly (bulk)"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-hifi {params.read_list_str} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
@@ -113,6 +120,9 @@ rule metamdbg_ont_individual:
         os.path.join(BENCHMARK_DIR, "metamdbg_ont_individual_b26.txt")
     message:
         "metaMDBG asm: ONT-only assembly (b26_t3_con)"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-ont {input.reads} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
@@ -138,6 +148,9 @@ rule metamdbg_hybrid_b26:
         os.path.join(BENCHMARK_DIR, "metamdbg_hybrid_b26.txt")
     message:
         "metaMDBG asm: hybrid assembly (b26_t3_con: HiFi + ONT)"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-hifi {input.hifi} --in-ont {input.ont} "
         "--out-dir {output.outdir} --threads {threads} {params.opts} && date) &> >(tee {log})"
@@ -163,7 +176,9 @@ rule metamdbg_hybrid_coassembly_bulk:
         os.path.join(BENCHMARK_DIR, "metamdbg_hybrid_coassembly_bulk.txt")
     message:
         "metaMDBG asm: hybrid co-assembly (bulk: HiFi + ONT)"
+    resources:
+        mem_mb=resource_mem,
+        slurm_partition=resource_partition
     shell:
         "(date && metaMDBG asm --in-hifi {params.hifi_list_str} --in-ont {input.ont_read} "
         "--out-dir {output.outdir} --threads {threads} {params.opts} && date) &> >(tee {log})"
-
