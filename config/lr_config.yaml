@@ -86,10 +86,10 @@ metabat2:
 # These are placeholders, modify for your cluster or remove if running locally
 resources:
   default_mem_mb: 6000
-  default_time: "08:00:00"
+  default_time: "4-00:00:00"
   default_partition: "ei-long"
   metamdbg_mem_mb: 100000 # Corresponds to mem_gb above
-  metamdbg_time: "96:00:00"
+  metamdbg_time: "4-00:00:00"
   metabat2_mem_mb: 64000
   metabat2_time: "48:00:00"
 
@@ -98,16 +98,16 @@ resources:
 slurm_partitions:
   highmem:
     name: "ei-largemem"
-    min_mem: 550
+    min_mem: 750
     max_mem: 6000
     min_threads: 0
     max_threads: 1024
   default:
-    name: "ei-medium,ei-long"
-    min_mem: 0
-    max_mem: 256
+    name: "ei-largemem" # "medium,ei-long"
+    min_mem: 250
+    max_mem: 750
     min_threads: 0
-    max_threads: 32
+    max_threads: 1024
 #
 #
 ###################################################
