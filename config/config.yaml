@@ -69,7 +69,7 @@ filter:
 # CLASSIFICATION
 kraken2:
   url: "https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_20230605.tar.gz"
-  db: "/hdd0/susbus/databases/kraken2/pluspfp/"
+  db: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/kraken2/20241228/"
   confidence: 0.5
   contig_confidence: 0.2
   threads: 12
@@ -82,20 +82,20 @@ kaiju:
   url: "https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_nr_euk_2023-05-10.tgz"
   threads: 4
   level: "species"
-  fmi: "/hdd0/susbus/databases/kaiju/kaiju_db_nr_euk.fmi"
-  nodes: "/hdd0/susbus/databases/kaiju/nodes.dmp"
-  names: "/hdd0/susbus/databases/kaiju/names.dmp"
+  fmi: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/kaiju/kaiju_db_nr_euk.fmi"
+  nodes: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/kaiju/nodes.dmp"
+  names: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/kaiju/names.dmp"
 
 # Struo2 database from the Ruth Ley lab
 struo2_kraken2:
-  db: "/hdd0/susbus/databases/kraken2/"
+  db: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/kraken2"
   threads: 12
 
 # Bracken
 # Bracken installed based on information here: https://github.com/jenniferlu717/Bracken
 bracken:
-  bin: "/hdd0/susbus/tools/Bracken/bracken"
-  combine: "/hdd0/susbus/tools/Bracken/analysis_scripts/combine_bracken_outputs.py"
+  bin: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/tools/Bracken/bracken"
+  combine: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/tools/Bracken/analysis_scripts/combine_bracken_outputs.py"
 
 # MetaPhlan v4.2.3
 metaphlan:
@@ -127,8 +127,8 @@ eukulele:
   threads: 64
   db: "phylodb"
   aligner: "diamond"  # options: "blast" or "diamond"
-  scratch: "/hdd0/susbus/socd/results/eukulele_scratch"
-  ref_dir: "/hdd0/susbus/databases"
+  scratch: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/scratch/susbus/eukulele_scratch"
+  ref_dir: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases"
 
 # MAPPING
 bwa:
