@@ -41,7 +41,7 @@ slurm_partitions:
     max_threads: 1024
   default:
     name: "ei-medium,ei-long"
-    min_mem: 0
+    min_mem: 200
     max_mem: 256
     min_threads: 0
     max_threads: 32

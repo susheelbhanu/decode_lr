@@ -183,8 +183,8 @@ snakemake -s $1 --configfile $2 --profile workflow/profiles/slurm --use-conda --
 
 Please cite the core tools used:
 
-- **metaMDBG** – Roy et al., *Nature Methods* 2023  
-- **MetaBAT2** – Kang et al., *PeerJ* 2019  
-- **Minimap2** – Li et al., *Bioinformatics* 2018  
-- **Snakemake** – Mölder et al., *Nature Methods* 2021  
+- **metaMDBG**
+- **MetaBAT2**  
+- **Minimap2**  
+- **Snakemake**  
 
