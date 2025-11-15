@@ -65,7 +65,7 @@ hybrid_individual_sample: "b26_t3_con"
 # --- Tool Parameters ---
 metamdbg:
   threads: 32
-  mem_gb: 1000 
+  mem_gb: 1024 
   k_min: 15
   k_max: 27
   opts: "" # E.g., "--min-depth 2"
@@ -85,20 +85,20 @@ metabat2:
 # --- Resource Allocation (Example for Slurm, adjust as needed) ---
 # These are placeholders, modify for your cluster or remove if running locally
 resources:
-  default_mem_mb: 6000
-  default_time: "4-00:00:00"
-  default_partition: "ei-long"
-  metamdbg_mem_mb: 100000 # Corresponds to mem_gb above
-  metamdbg_time: "4-00:00:00"
+  default_mem_mb: 1048576
+  default_time: "7-00:00:00"
+  default_partition: "ei-largemem"
+  metamdbg_mem_mb: 1048576 # Corresponds to mem_gb above
+  metamdbg_time: "7-00:00:00"
   metabat2_mem_mb: 64000
-  metabat2_time: "48:00:00"
+  metabat2_time: "72:00:00"
 
 ###################################################
 ## SLURM PARAMETERS
 slurm_partitions:
   highmem:
     name: "ei-largemem"
-    min_mem: 750
+    min_mem: 1024
     max_mem: 6000
     min_threads: 0
     max_threads: 1024

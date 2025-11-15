@@ -21,7 +21,7 @@ default-resources:
   - slurm_account=tgac
   - exclude="n83029"
   - slurm_partition="ei-medium,ei-long"   # fallback if a rule doesn't compute one; # USER_INPUT
-  - mem_mb=10000                           # fallback MB; # USER_INPUT
+  - mem_mb=1048576                           # fallback MB (1 TB); # USER_INPUT
   - time="4-00:00:00" 
 
 # dynamic submission: partition/mem from {resources.*}, qos/time from cluster-config

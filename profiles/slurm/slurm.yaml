@@ -1,6 +1,6 @@
 __default__:
-  time: "1-00:00:00"
-  partition: "ei-medium"
+  time: "4-00:00:00"
+  partition: "ei-largemem"
   qos: "normal"
   job-name: "LR_DECODE.{rule}"
 

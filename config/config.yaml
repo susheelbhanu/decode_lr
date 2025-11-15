@@ -35,7 +35,7 @@ results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_proje
 slurm_partitions:
   highmem:
     name: "ei-largemem"
-    min_mem: 550
+    min_mem: 1024
     max_mem: 6000
     min_threads: 0
     max_threads: 1024
