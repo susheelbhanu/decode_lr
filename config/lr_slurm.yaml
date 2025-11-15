@@ -2,7 +2,7 @@ __default__:
   time: "7-00:00:00"
   partition: "ei-largemem"
   qos: "normal"
-  mem: "750G"
+  mem: "1024G"
   job-name: "LR_DECODE.{rule}"
 
 input_short:
