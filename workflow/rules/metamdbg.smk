@@ -10,13 +10,13 @@ import os.path
 rule lr_assembly_all:
     input:
         # Individual HiFi assemblies
-        expand(os.path.join(RESULTS_DIR, "assemblies/hifi_individual/{sample}/contigs.fasta"),
+        expand(os.path.join(RESULTS_DIR, "assemblies/hifi_individual/{sample}/contigs.fasta.gz"),
                sample=ALL_HIFI_SAMPLES),
         # Co-assemblies
-        os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta"),
-        os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta"),
+        os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta.gz"),
+        os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta.gz"),
         # ONT-only
-        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta")
+        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta.gz")
     output:
         touch("status/lr_assembly.done")
 
@@ -26,7 +26,7 @@ rule metamdbg_hifi_individual:
     input:
         reads = get_hifi_reads
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_individual/{sample}/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_individual/{sample}/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/hifi_individual/{sample}"))
     params:
         mem  = config["metamdbg"]["mem_gb"],
@@ -50,8 +50,10 @@ rule metamdbg_hifi_individual:
 
 rule metamdbg_hifi_coassembly_rhizo:
     """Co-assemble the rhizosphere HiFi samples."""
+    input:
+        reads = get_rhizo_hifi_reads
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo"))
     params:
         mem            = config["metamdbg"]["mem_gb"],
@@ -71,13 +73,15 @@ rule metamdbg_hifi_coassembly_rhizo:
         mem_mb=resource_mem,
         slurm_partition=resource_partition
     shell:
-        "(date && metaMDBG asm --in-hifi {params.read_list_str} --out-dir {output.outdir} "
+        "(date && metaMDBG asm --in-hifi {input.reads} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
 
 rule metamdbg_hifi_coassembly_bulk:
     """Co-assemble the bulk HiFi samples."""
+    input:
+        reads = get_bulk_hifi_reads
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk"))
     params:
         mem            = config["metamdbg"]["mem_gb"],
@@ -97,7 +101,7 @@ rule metamdbg_hifi_coassembly_bulk:
         mem_mb=resource_mem,
         slurm_partition=resource_partition
     shell:
-        "(date && metaMDBG asm --in-hifi {params.read_list_str} --out-dir {output.outdir} "
+        "(date && metaMDBG asm --in-hifi {input.reads} --out-dir {output.outdir} "
         "--threads {threads} {params.opts} && date) &> >(tee {log})"
 
 rule metamdbg_ont_individual:
@@ -105,7 +109,7 @@ rule metamdbg_ont_individual:
     input:
         reads = ONT_FILE
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26"))
     params:
         mem  = config["metamdbg"]["mem_gb"],
@@ -133,7 +137,7 @@ rule metamdbg_hybrid_b26:
         hifi = lambda wc: hifi_path_for_sample(HYBRID_INDIVIDUAL),
         ont  = ONT_FILE
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/hybrid_b26/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/hybrid_b26/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/hybrid_b26"))
     params:
         mem  = config["metamdbg"]["mem_gb"],
@@ -160,7 +164,7 @@ rule metamdbg_hybrid_coassembly_bulk:
     input:
         ont_read = ONT_FILE
     output:
-        contigs = os.path.join(RESULTS_DIR, "assemblies/hybrid_coassembly_bulk/contigs.fasta"),
+        contigs = os.path.join(RESULTS_DIR, "assemblies/hybrid_coassembly_bulk/contigs.fasta.gz"),
         outdir  = directory(os.path.join(RESULTS_DIR, "assemblies/hybrid_coassembly_bulk"))
     params:
         mem          = config["metamdbg"]["mem_gb"],

@@ -64,8 +64,8 @@ hybrid_individual_sample: "b26_t3_con"
 
 # --- Tool Parameters ---
 metamdbg:
-  threads: 32
-  mem_gb: 1024 
+  threads: 24
+  mem_gb: 750 
   k_min: 15
   k_max: 27
   opts: "" # E.g., "--min-depth 2"
@@ -86,7 +86,7 @@ metabat2:
 # These are placeholders, modify for your cluster or remove if running locally
 resources:
   default_mem_mb: 1048576
-  default_time: "7-00:00:00"
+  default_time: "28-00:00:00"
   default_partition: "ei-largemem"
   metamdbg_mem_mb: 1048576 # Corresponds to mem_gb above
   metamdbg_time: "7-00:00:00"
@@ -96,18 +96,44 @@ resources:
 ###################################################
 ## SLURM PARAMETERS
 slurm_partitions:
+  medium:
+    name: "ei-medium"
+    min_mem: 16      # GB
+    max_mem: 500     # GB (just under node limit)
+    min_threads: 1
+    max_threads: 64
+  long:
+    name: "ei-long"
+    min_mem: 16
+    max_mem: 500
+    min_threads: 1
+    max_threads: 64
   highmem:
     name: "ei-largemem"
-    min_mem: 1024
-    max_mem: 6000
-    min_threads: 0
-    max_threads: 1024
+    min_mem: 750      # GB
+    max_mem: 4000    # GB (~4 TB, under node limit)
+    min_threads: 1
+    max_threads: 64
   default:
-    name: "ei-largemem" # "medium,ei-long"
-    min_mem: 250
-    max_mem: 750
-    min_threads: 0
-    max_threads: 1024
+    name: "ei-largemem"
+    min_mem: 750
+    max_mem: 4000
+    min_threads: 1
+    max_threads: 64
+
+#slurm_partitions:
+#  highmem:
+#    name: "ei-largemem"
+#    min_mem: 1024
+#    max_mem: 5000
+#    min_threads: 0
+#    max_threads: 64
+#  default:
+#    name: "ei-largemem" # "medium,ei-long"
+#    min_mem: 250
+#    max_mem: 750
+#    min_threads: 0
+#    max_threads: 72
 #
 #
 ###################################################

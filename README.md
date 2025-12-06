@@ -81,6 +81,61 @@ slurm_partitions:
 
 ---
 
+# 🛢️ Singularity Setup (EI-HPC Software node)
+
+Compute nodes such as `ei-medium` **do not have internet access**, so Singularity must use:
+
+1. A **local project-owned cache**
+2. **Local .sif images** pulled on a login node
+
+---
+
+## Create a Singularity cache directory
+
+```bash
+export SINGULARITY_CACHEDIR=/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/singularity_cache
+mkdir -p "$SINGULARITY_CACHEDIR"
+```
+
+## Create the containers folder
+
+```bash
+mkdir -p /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/containers
+cd /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/containers
+```
+
+## Pull workflow containers (login node only)
+
+```bash
+singularity pull bwasamtools_1.10.sif      docker://quay.io/annacprice/bwasamtools:1.10
+singularity pull bedtools_2.29.2.sif       docker://quay.io/annacprice/bedtools:2.29.2
+singularity pull prodigal-gv_2.11.0.sif    docker://quay.io/biocontainers/prodigal-gv:2.11.0--h577a1d6_5
+singularity pull blast_2.16.0.sif          docker://quay.io/biocontainers/blast:2.16.0--hc155240_2
+singularity pull pythonenv_3.9.sif         docker://quay.io/annacprice/pythonenv:3.9
+singularity pull sylph_0.9.0.sif           docker://quay.io/biocontainers/sylph:0.9.0--ha6fb395_0
+```
+
+## Use containers in Snakemake
+
+```python
+CONTAINER_DIR = "/ei/projects/.../decode_lr/containers"
+
+BWASAMTOOLS_IMG = f"{CONTAINER_DIR}/bwasamtools_1.10.sif"
+BEDTOOLS_IMG    = f"{CONTAINER_DIR}/bedtools_2.29.2.sif"
+PRODIGAL_IMG    = f"{CONTAINER_DIR}/prodigal-gv_2.11.0.sif"
+BLAST_IMG       = f"{CONTAINER_DIR}/blast_2.16.0.sif"
+PYTHONENV_IMG   = f"{CONTAINER_DIR}/pythonenv_3.9.sif"
+SYLPH_IMG       = f"{CONTAINER_DIR}/sylph_0.9.0.sif"
+```
+
+Then within rules:
+
+```python
+singularity: BWASAMTOOLS_IMG
+```
+
+---
+
 ## 🧪 Conda Environments
 
 Create conda environments (once):

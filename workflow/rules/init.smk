@@ -144,17 +144,33 @@ def get_hifi_reads(wildcards):
     """Single-sample helper used by individual assembly rules."""
     return hifi_path_for_sample(wildcards.sample)
 
-def get_bulk_hifi_reads(_wildcards=None):
-    """Space-separated HiFi files for bulk co-assembly."""
-    if not isinstance(cfg_samples, Mapping):
-        raise WorkflowError("Bulk co-assembly requested but 'samples' is not an inline dict with 'bulk' entries.")
-    return " ".join(hifi_path_for_sample(s) for s in BULK_SAMPLES)
+#def get_bulk_hifi_reads(_wildcards=None):
+#    """Space-separated HiFi files for bulk co-assembly."""
+#    if not isinstance(cfg_samples, Mapping):
+#        raise WorkflowError("Bulk co-assembly requested but 'samples' is not an inline dict with 'bulk' entries.")
+#    return " ".join(hifi_path_for_sample(s) for s in BULK_SAMPLES)
 
-def get_rhizo_hifi_reads(_wildcards=None):
-    """Space-separated HiFi files for rhizo co-assembly."""
+#def get_rhizo_hifi_reads(_wildcards=None):
+#    """Space-separated HiFi files for rhizo co-assembly."""
+#    if not isinstance(cfg_samples, Mapping):
+#        raise WorkflowError("Rhizo co-assembly requested but 'samples' is not an inline dict with 'rhizo' entries.")
+#    return " ".join(hifi_path_for_sample(s) for s in RHIZO_SAMPLES)
+
+def get_bulk_hifi_reads(wildcards):
+    """List of HiFi files for bulk co-assembly."""
     if not isinstance(cfg_samples, Mapping):
-        raise WorkflowError("Rhizo co-assembly requested but 'samples' is not an inline dict with 'rhizo' entries.")
-    return " ".join(hifi_path_for_sample(s) for s in RHIZO_SAMPLES)
+        raise WorkflowError(
+            "Bulk co-assembly requested but 'samples' is not an inline dict with 'bulk' entries."
+        )
+    return [hifi_path_for_sample(s) for s in BULK_SAMPLES]
+
+def get_rhizo_hifi_reads(wildcards):
+    """List of HiFi files for rhizo co-assembly."""
+    if not isinstance(cfg_samples, Mapping):
+        raise WorkflowError(
+            "Rhizo co-assembly requested but 'samples' is not an inline dict with 'rhizo' entries."
+        )
+    return [hifi_path_for_sample(s) for s in RHIZO_SAMPLES]
 
 ##################################################
 # CLUSTER / SLURM RESOURCES (compatible, safer version)

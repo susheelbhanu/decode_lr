@@ -1,5 +1,5 @@
 __default__:
-  time: "7-00:00:00"
+  time: "28-00:00:00"
   partition: "ei-largemem"
   qos: "normal"
   mem: "1024G"

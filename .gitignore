@@ -151,3 +151,8 @@ reference_bins/*
 references_bins/
 slurm-*
 slurm/**
+singularity_cache/**
+singularity_cache**
+containers**
+containers/**
+containers/*.sif
