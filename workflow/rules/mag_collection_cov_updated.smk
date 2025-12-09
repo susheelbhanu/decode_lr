@@ -45,9 +45,9 @@ R2 = {basename(dirname(file)):file for file in glob.glob(f"{DATA}/preprocessed/r
 
 # ASM_folder_SR = {"COA_SR":f"{ROOT}/WGS/assemblies/coassembly"}
 # ASM_folder_SR.update({"%s_SR"%basename(file):file for file in glob.glob(f"{ROOT}/WGS/assemblies/per_mice/*")})
-ASM_folder_LR = {"COA_LR":f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/COA/metamdbg"}
+# ASM_folder_LR = {"COA_LR":f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/COA/metamdbg"}
 #ASM_folder_LR.update({"%s_LR"%basename(dirname(file)):file for file in glob.glob(f"{ROOT}/HiFi/assemblies/SSA/*/metamdbg")})
-ASM_folder_LR.update({"%s_LR"%basename(dirname(file)):file for file in glob.glob(f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/SSA/*/metamdbg")})
+ASM_folder_LR = {"%s_LR"%basename(dirname(file)):file for file in glob.glob(f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/SSA/*/metamdbg")}
 
 # ASM_folder = ASM_folder_SR
 #ASM_folder.update(ASM_folder_LR)
@@ -95,7 +95,7 @@ rule create_orf_database:
                 # get contigs
                 contig_mag = {}
                 if "LR" in asm:
-                    clustering = f"{fold}/binning/consensus_LRSR/clustering_consensus_LRSR.csv"
+                    clustering = f"{fold}/binning/consensus_LR/clustering_consensus_LR.csv"
                     LR_mags = {basename(f).replace(".fa",""):f for f in glob.glob(f"{fold}/MAGs/mags_LRSR/*.fa")}
                     for mag,mag_path in LR_mags.items():
                         for header,seq in sfp(open(mag_path)):
