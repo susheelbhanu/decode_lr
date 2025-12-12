@@ -16,7 +16,10 @@ rule lr_assembly_all:
         os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_rhizo/contigs.fasta.gz"),
         os.path.join(RESULTS_DIR, "assemblies/hifi_coassembly_bulk/contigs.fasta.gz"),
         # ONT-only
-        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta.gz")
+        os.path.join(RESULTS_DIR, "assemblies/ont_individual_b26/contigs.fasta.gz"),
+        # Hybrid
+        os.path.join(RESULTS_DIR, "assemblies/hybrid_b26/contigs.fasta.gz"),
+        os.path.join(RESULTS_DIR, "assemblies/hybrid_coassembly_bulk/contigs.fasta.gz")
     output:
         touch("status/lr_assembly.done")
 
@@ -156,7 +159,7 @@ rule metamdbg_hybrid_b26:
         mem_mb=resource_mem,
         slurm_partition=resource_partition
     shell:
-        "(date && metaMDBG asm --in-hifi {input.hifi} --in-ont {input.ont} "
+        "(date && metaMDBG asm --in-ont {input.hifi} {input.ont} "
         "--out-dir {output.outdir} --threads {threads} {params.opts} && date) &> >(tee {log})"
 
 rule metamdbg_hybrid_coassembly_bulk:
@@ -184,5 +187,5 @@ rule metamdbg_hybrid_coassembly_bulk:
         mem_mb=resource_mem,
         slurm_partition=resource_partition
     shell:
-        "(date && metaMDBG asm --in-hifi {params.hifi_list_str} --in-ont {input.ont_read} "
+        "(date && metaMDBG asm --in-ont {params.hifi_list_str} {input.ont_read} "
         "--out-dir {output.outdir} --threads {threads} {params.opts} && date) &> >(tee {log})"

@@ -156,3 +156,4 @@ singularity_cache**
 containers**
 containers/**
 containers/*.sif
+*.bam
