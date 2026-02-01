@@ -1,0 +1,14 @@
+__default__:
+  time: "2-00:00:00"
+  partition: "ei-largemem"
+  qos: "qos-batch"
+  job-name: "BINNING.{rule}"
+
+input_short:
+  partition: "ei-medium"
+  time: "0-00:40:00"
+
+short_preproc:
+  partition: "ei-long"
+  time: "2-00:00:00"
+

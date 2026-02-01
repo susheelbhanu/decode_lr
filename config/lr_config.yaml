@@ -64,7 +64,7 @@ hybrid_individual_sample: "b26_t3_con"
 
 # --- Tool Parameters ---
 metamdbg:
-  threads: 24
+  threads: 64
   mem_gb: 750 
   k_min: 15
   k_max: 27

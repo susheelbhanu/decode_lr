@@ -1,0 +1,63 @@
+# profiles/slurm/config.yaml
+# Snakemake profile for execution on HPC cluster using Slurm
+
+# total number of cores and jobs (mainly affects local scheduling; cluster jobs use sbatch)
+# Keep conservative for launcher-based usage (we submit jobs via Slurm anyway).
+cores: 112
+jobs: 50
+
+# for local rules: use at most N cores of the host machine in parallel
+local-cores: 1
+
+# resources (fallbacks if a rule doesn't set them)
+# IMPORTANT: keep these sane so jobs don't request 1 TB by default.
+default-resources:
+  - slurm_partition="ei-largemem"
+  - mem_mb=6400
+  - time="2-00:00:00"
+  - slurm_account=tgac
+  - exclude="n83029"
+
+# dynamic submission:
+# - partition/mem/tmpdir from {resources.*}
+# - qos/time/job-name from cluster-config (lr_slurm.yaml)
+cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err --export=ALL"
+# cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err --export=ALL,TMPDIR={resources.tmpdir}"
+
+# go on with independent jobs if a job fails
+keep-going: True
+
+# re-run all jobs the output of which is recognized as incomplete
+rerun-incomplete: True
+
+# print the reason for each executed rule
+reason: True
+
+# print out the shell commands that will be executed
+printshellcmds: True
+
+# conda
+use-conda: True
+conda-prefix: "/hpc-home/kar23heg/conda_envs/decode"
+
+# wait given seconds if an output file of a job is not present after the job finished
+latency-wait: 120
+
+# number of times to restart failing jobs
+restart-times: 3
+
+# slurm config (repo-relative)
+cluster-config: "profiles/slurm_mag_cov/slurm.yaml"
+
+# max. number of cluster/drmaa jobs per second
+max-jobs-per-second: 10
+
+# max. number of job status checks per second
+max-status-checks-per-second: 10
+
+# trigger for rerunning jobs
+rerun-trigger: "mtime"
+
+# singularity
+use-singularity: True
+singularity-prefix: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/singularity_cache" #/hpc-home/kar23heg/singularity_cache"

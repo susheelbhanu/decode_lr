@@ -1,0 +1,7 @@
+# config/mag_cov.yaml
+# Run-specific config for MAG coverage workflow (mag_collection_cov_updated.smk)
+
+project_dir: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr
+
+# Use project scratch for temp files (prevents samtools temp shards in workdir)
+tmpdir: /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/tmp

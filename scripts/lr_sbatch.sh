@@ -8,7 +8,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH --time=21-00:00:00
+#SBATCH --time=40-00:00:00
 #SBATCH -p ei-long
 #SBATCH --qos=qos-batch
 
@@ -20,7 +20,7 @@ SMK_ENV="snakemake" # USER INPUT REQUIRED
 # # number of cores for snakemake
 # SMK_CORES=72
 # number of jobs for snakemake
-SMK_JOBS=12
+SMK_JOBS=2
 # snakemake file
 SMK_SMK="workflow/metamdbg_Snakefile"
 # config file

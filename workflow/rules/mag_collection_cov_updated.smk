@@ -26,7 +26,7 @@ SYLPH_IMG       = f"{CONTAINER_DIR}/sylph_0.9.0.sif"
 ROOT = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/mags_with_rhyzo"
 DATA = "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/results"
 DREP95 = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/mags_with_rhyzo/drep"
-SUMMARY = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/mags_with_rhyzo/results/contig_MAGs_dMAGs.tsv"
+SUMMARY = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/mags_with_rhyzo/results/./contig_MAGs_dMAGs_reordered.tsv"
 OUT = f'{ROOT}/MAGs/profile/scg_95'
 
 SPIKIN_FOLD = '/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/spike_in_refs'
@@ -165,7 +165,7 @@ rule deal_with_spike_in:
                 for header,seq in sfp(open(f"{SPIKIN_FOLD}/{spk}.fasta")):
                     header = header.split(" ")[0]
                     if header in contigs:
-                        handle_fa.write(f">{spk}__{header}\n%s{seq}\n")
+                        handle_fa.write(f">{spk}__{header}\n{seq}\n")
                         sorted_contig.append(f"{spk}__{header}")
 
                 # bed
@@ -193,19 +193,28 @@ rule deal_with_spike_in:
         os.system("cat %s >> %s"%(input["bed"],output["bed"]))
 
 
-
-
 rule bwa_index:
-    input:   "{path}/dmag_spk_scg.fa",
-    output:  touch("{path}/index.done")
-    log:     "{path}/index.log"
-    params : 1000000
+    input:
+        "{path}/dmag_spk_scg.fa"
+    output:
+        touch("{path}/index.done")
+    log:
+        "{path}/index.log"
+    params:
+        block = 1000000
     resources:
         slurm_partition = get_resource("partition"),
-        mem_mb=get_resource("mem"),
-    message: "Building bwa index for {input}"
-    singularity: BWASAMTOOLS_IMG
-    shell:   "bwa index -b {params} {input} &> {log}"
+        mem_mb = get_resource("mem")
+    message:
+        "Building bwa index for {input}"
+    singularity:
+        BWASAMTOOLS_IMG
+    shell:
+        r"""
+        rm -f {input}.amb {input}.ann {input}.bwt {input}.pac {input}.sa
+        bwa index -b {params.block} {input} &> {log}
+        """
+
 
 rule bwa_mem_to_bam:
     input:   index="{group}/index.done",
@@ -236,6 +245,18 @@ rule spike_in_def:
         with open(output[0],"w") as handle:
             handle.writelines(f"{spk}\n" for spk in SPIKE_IN)
 
+rule convert_contig_MAG_dMAG:
+    input:
+        tsv = SUMMARY  # your original contig_MAGs_dMAGs.tsv
+    output:
+        tsv = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/mags_with_rhyzo/results/mags_summary_95.tsv"
+    shell:
+        r"""
+        awk 'NR==1 {{print "MAG\tasm\tdMAG\tcontig"; next}} \
+             {{print $3"\t"$2"\t"$4"\t"$1}}' \
+             {input.tsv} > {output.tsv}
+        """
+
 rule drep_clu_scg:
     input: bam ="{path}/bam/{sample}_mapped_sorted.bam",
            bai ="{path}/bam/{sample}_mapped_sorted.bam.bai",
@@ -244,7 +265,7 @@ rule drep_clu_scg:
     output: orf = "{path}/cov/{sample}_drep_detail.cov",
             cov = "{path}/cov/{sample}_drep.cov",
             bam_filt = "{path}/bam/{sample}_filtered.bam"
-    params: derep = SUMMARY,
+    params: derep = rules.convert_contig_MAG_dMAG.output.tsv,	# SUMMARY
             prefix = "{path}/cov/{sample}",
     threads: 4
     resources:

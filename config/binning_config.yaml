@@ -1,0 +1,53 @@
+# config/binning_standalone.yaml
+# Self-contained coassembly binning + QC (MetaBAT2, SemiBin2, CONCOCT) using Slurm/Singularity.
+# Output base is taken from lr_config.yaml -> results_dir.
+
+lr_config: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/config/lr_config.yaml
+run_name: hifi_coassembly_rhizo
+
+assembly: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results/assemblies/hifi_coassembly_rhizo/contigs.fasta.gz
+
+# Long reads (HiFi) for coverage (all pooled for co-binning)
+lr_reads:
+  b10_d3_0200_con: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/b10_d3_0200_con/b10_d3_0200_con_trimmed.fastq.gz
+  b10_d3_1400_con: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/b10_d3_1400_con/b10_d3_1400_con_trimmed.fastq.gz
+  b20_d3_0200_bio: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/b20_d3_0200_bio/b20_d3_0200_bio_trimmed.fastq.gz
+  b20_d3_1400_bio: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/b20_d3_1400_bio/b20_d3_1400_bio_trimmed.fastq.gz
+  b26_t3_con: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/b26_t3_con/CEH_hifi_sample_trimmed.fastq.gz
+  r15_d3_0200_con: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/r15_d3_0200_con/r15_d3_0200_con_trimmed.fastq.gz
+  r15_d3_1400_con: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/r15_d3_1400_con/r15_d3_1400_con_trimmed.fastq.gz
+  r30_d3_0200_bio: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/r30_d3_0200_bio/r30_d3_0200_bio_trimmed.fastq.gz
+  r30_d3_1400_bio: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/HiFi/r30_d3_1400_bio/r30_d3_1400_bio_trimmed.fastq.gz
+
+# Short reads (rhizo only) discovered from list + globs
+use_sr: true
+sr_sample_list: config/rhizo_samples.txt
+sr_data_root: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/results
+sr_r1_glob: "{root}/preprocessed/reads/*/*_filtered.R1.fq"
+sr_r2_glob: "{root}/preprocessed/reads/*/*_filtered.R2.fq"
+
+# Which binners to run
+binners: [metabat2, semibin2, concoct]
+
+# Mapping / performance
+minimap2_preset: "-ax map-hifi"
+threads_map: 24
+threads_bin: 24
+tmpdir: /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/tmp
+
+# MetaBAT2
+metabat2:
+  min_contig_len: 2000
+  extra_opts: ""
+
+# CONCOCT
+concoct:
+  min_contig_len: 1000
+  chunk_len: 10000
+  overlap_len: 0
+
+# QC / taxonomy
+checkm2:
+  threads: 24
+gtdbtk:
+  threads: 24

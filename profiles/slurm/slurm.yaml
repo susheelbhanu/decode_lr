@@ -1,5 +1,5 @@
 __default__:
-  time: "14-00:00:00"
+  time: "40-00:00:00"
   partition: "ei-largemem"
   qos: "qos-batch"
   job-name: "LR_DECODE.{rule}"
