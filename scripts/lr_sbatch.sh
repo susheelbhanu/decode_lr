@@ -20,9 +20,9 @@ SMK_ENV="snakemake" # USER INPUT REQUIRED
 # # number of cores for snakemake
 # SMK_CORES=72
 # number of jobs for snakemake
-SMK_JOBS=2
+SMK_JOBS=16
 # snakemake file
-SMK_SMK="workflow/metamdbg_Snakefile"
+SMK_SMK="workflow/Snakefile"
 # config file
 SMK_CONFIG="config/lr_config.yaml" # USER INPUT REQUIRED
 # slurm config file

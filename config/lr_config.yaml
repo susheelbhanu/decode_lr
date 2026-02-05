@@ -28,7 +28,7 @@ samples: "config/skyline_samples.tsv" # USER_INPUT
 metadata: "data" # USER_INPUT
 
 # path to the results folder
-results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results"
+results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results_20260202" #"/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results"
 
 # path to the envs folder
 env_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/envs"
@@ -64,6 +64,9 @@ hybrid_individual_sample: "b26_t3_con"
 
 # --- Tool Parameters ---
 metamdbg:
+  path: "/hpc-home/kar23heg/tools/metaMDBG/build/bin/metaMDBG"
+  bin_dir: "/hpc-home/kar23heg/tools/metaMDBG/build/bin"
+  lib_path: "/hpc-home/kar23heg/my_libs/lib"
   threads: 64
   mem_gb: 750 
   k_min: 15

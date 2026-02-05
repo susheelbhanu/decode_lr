@@ -136,6 +136,7 @@ IMG_SAMTOOLS     = f"{CACHE}/samtools_1.19.2.sif"
 IMG_METABAT2     = f"{CACHE}/metabat2_2.15.sif"
 IMG_CONCOCT      = f"{CACHE}/concoct_1.1.0.sif"
 IMG_SEQKIT       = f"{CACHE}/seqkit_2.6.1.sif"
+IMG_MINIMAP2_SAMTOOLS = "docker://quay.io/biocontainers/mulled-v2-66534bcbb703196e9da7354972e259e875080e7e:afc8599426f4b66471e4eb441235123d47228d71-0"
 
 # ---------- targets ----------
 targets = []
@@ -183,7 +184,7 @@ rule map_lr_sample:
         bam=f"{OUTDIR}/mapping/LR/{{sample}}.sorted.bam",
         bai=f"{OUTDIR}/mapping/LR/{{sample}}.sorted.bam.bai"
     threads: THREADS_MAP
-    singularity: IMG_MINIMAP2
+    singularity: IMG_MINIMAP2_SAMTOOLS # IMG_MINIMAP2
     shell:
         r"""
         mkdir -p {OUTDIR}/mapping/LR
