@@ -13,7 +13,7 @@ local-cores: 1
 # IMPORTANT: keep these sane so jobs don't request 1 TB by default.
 default-resources:
   - slurm_partition="ei-largemem"
-  - mem_mb=6400
+  - mem_mb=256000
   - time="2-00:00:00"
   - slurm_account=tgac
   - exclude="n83029"

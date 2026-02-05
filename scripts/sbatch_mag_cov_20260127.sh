@@ -11,8 +11,7 @@
 #SBATCH -n 1
 #SBATCH -c 1
 #SBATCH --time=20-00:00:00
-#SBATCH -p ei-largemem
-#SBATCH --qos=qos-batch
+#SBATCH -p ei-long
 #SBATCH --mem=8G
 
 ##############################
@@ -73,4 +72,4 @@ snakemake -s "${SMK_SMK}" \
     --use-conda \
     --use-singularity \
     --singularity-args "$BIND_DIRS" \
-    --rerun-incomplete -rpk
+    --rerun-incomplete -rpk 
