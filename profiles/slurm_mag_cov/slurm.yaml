@@ -12,3 +12,7 @@ short_preproc:
   partition: "ei-long"
   time: "2-00:00:00"
 
+sylph_profile:
+  partition: "ei-long"          # or "ei-medium" if it runs fine there
+  time: "0-12:00:00"
+  mem: "120G"

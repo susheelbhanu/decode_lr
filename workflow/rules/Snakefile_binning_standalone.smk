@@ -171,6 +171,9 @@ rule prepare_assembly:
 rule faidx_assembly:
     input: ASM_FA
     output: ASM_FAI
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_SAMTOOLS
     shell: r"samtools faidx {input}"
 
@@ -184,6 +187,9 @@ rule map_lr_sample:
         bam=f"{OUTDIR}/mapping/LR/{{sample}}.sorted.bam",
         bai=f"{OUTDIR}/mapping/LR/{{sample}}.sorted.bam.bai"
     threads: THREADS_MAP
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_MINIMAP2_SAMTOOLS # IMG_MINIMAP2
     shell:
         r"""
@@ -199,7 +205,10 @@ rule merge_lr_bams:
     output:
         bam=LR_MERGED,
         bai=LR_MERGED_BAI
-    threads: 8
+    threads: THREADS_MAP
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_SAMTOOLS
     shell:
         r"""
@@ -219,6 +228,9 @@ rule map_sr_sample:
         bam=f"{OUTDIR}/mapping/SR/{{sample}}.sorted.bam",
         bai=f"{OUTDIR}/mapping/SR/{{sample}}.sorted.bam.bai"
     threads: THREADS_MAP
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_BWA_SAMTOOLS
     shell:
         r"""
@@ -235,7 +247,10 @@ rule merge_sr_bams:
     output:
         bam=SR_MERGED,
         bai=SR_MERGED_BAI
-    threads: 8
+    threads: THREADS_MAP
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_SAMTOOLS
     shell:
         r"""
@@ -257,6 +272,9 @@ rule depth:
         lr=LR_MERGED,
         sr=SR_MERGED
     output: DEPTH
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_METABAT2
     shell:
         r"""
@@ -275,6 +293,9 @@ rule metabat2:
         depth=DEPTH
     output: MB2_DONE
     threads: THREADS_BIN
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_METABAT2
     shell:
         r"""
@@ -299,6 +320,9 @@ rule semibin2:
         bam=LR_MERGED
     output: SB2_DONE
     threads: THREADS_MAP
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_SEMIBIN
     shell:
         r"""
@@ -315,6 +339,10 @@ rule semibin2:
 rule concoct_filter_contigs:
     input: ASM_FA
     output: CC_FILTER_FA
+    threads: 8
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_SEQKIT
     shell:
         r"""
@@ -327,6 +355,10 @@ rule concoct_cutup:
     output:
         cut=CC_CUT_FA,
         bed=CC_BED
+    threads: 8
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_CONCOCT
     shell:
         r"""
@@ -340,6 +372,10 @@ rule concoct_coverage:
         bed=CC_BED,
         lr=LR_MERGED,
         sr=SR_MERGED
+    threads: 8
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     output: CC_COV
     singularity: IMG_CONCOCT
     shell:
@@ -358,6 +394,9 @@ rule concoct_cluster:
         cov=CC_COV
     output: CC_CLUSTER
     threads: THREADS_BIN
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_CONCOCT
     shell:
         r"""
@@ -370,6 +409,10 @@ rule concoct_extract_bins:
     input:
         fa=CC_FILTER_FA,
         clustering=CC_CLUSTER
+    threads: 8
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     output: CC_DONE
     singularity: IMG_CONCOCT
     shell:
@@ -385,6 +428,10 @@ rule make_bins_list:
         mb2=MB2_DONE if "metabat2" in BINNERS else [],
         sb2=SB2_DONE if "semibin2" in BINNERS else [],
         cc=CC_DONE if "concoct" in BINNERS else []
+    threads: 4
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     output: BINS_LIST
     shell:
         r"""
@@ -408,6 +455,9 @@ rule checkm2:
     input: BINS_LIST
     output: CHECKM2_TSV
     threads: CHECKM2_THREADS
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_CHECKM2
     shell:
         r"""
@@ -426,6 +476,9 @@ rule gtdbtk:
     input: BINS_LIST
     output: GTDB_SUM
     threads: GTDB_THREADS
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_GTDBTK
     shell:
         r"""
@@ -443,6 +496,10 @@ rule gtdbtk:
 rule fasttree:
     input: GTDB_SUM
     output: TREE
+    threads: THREADS_BIN
+    resources:
+        slurm_partition = get_resource("partition"),
+        mem_mb = get_resource("mem")
     singularity: IMG_FASTTREE
     shell:
         r"""

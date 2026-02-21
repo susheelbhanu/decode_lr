@@ -36,7 +36,7 @@ TARGETS = []
 # ASSEMBLY
 if "lr_assembly" in config["steps"]:
     include:
-        "rules/metamdbg.smk"
+        "rules/metamdbg_updated.smk"
     TARGETS += [
         "status/lr_assembly_new.done"
     ]

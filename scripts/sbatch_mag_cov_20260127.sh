@@ -12,7 +12,7 @@
 #SBATCH -c 1
 #SBATCH --time=20-00:00:00
 #SBATCH -p ei-long
-#SBATCH --mem=8G
+#SBATCH --mem=32G
 
 ##############################
 # SNAKEMAKE

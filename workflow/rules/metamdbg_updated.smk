@@ -1,13 +1,13 @@
 # -----------------------------------------------------------------
 # SNAKEFILE - metaMDBG assemblies
-# Using conda 'metamdbg v1.3' and manual executable path
+# Using Singularity Container
 # -----------------------------------------------------------------
 
 import os
 
 # --- Configuration & Paths ---
-METAMDBG_EXE = "/hpc-home/kar23heg/tools/metaMDBG/build/bin/metaMDBG"
-CONDA_ENV = "metamdbg1.3"
+# Provide the absolute path to where you saved the .sif file
+SIF_IMAGE = "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/singularity_cache/metamdbg_1.3.1.sif"
 
 # --- Final targets ---
 rule lr_assembly_all:
@@ -33,16 +33,13 @@ rule metamdbg_hifi_individual:
         opts = config["metamdbg"].get("opts", "")
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_individual/{sample}.log")
     shell:
         """
-        # Ensure conda-installed time/minimap2 are prioritized
-        export PATH=$CONDA_PREFIX/bin:$PATH
-
-        (date && {METAMDBG_EXE} asm --in-hifi {input.reads} --out-dir $dirname({output.contigs}) \
+        (date && metaMDBG asm --in-hifi {input.reads} --out-dir $(dirname {output.contigs}) \
         --threads {threads} {params.opts} && date) &> >(tee {log})
         """
 
@@ -55,14 +52,13 @@ rule metamdbg_hifi_coassembly_rhizo:
         opts = config["metamdbg"].get("opts", "")
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_coassembly_rhizo.log")
     shell:
         """
-        export PATH=$CONDA_PREFIX/bin:$PATH
-        (date && {METAMDBG_EXE} asm --in-hifi {input.reads} --out-dir $dirname({output.contigs}) \
+        (date && metaMDBG asm --in-hifi {input.reads} --out-dir $(dirname {output.contigs}) \
         --threads {threads} {params.opts} && date) &> >(tee {log})
         """
 
@@ -75,14 +71,13 @@ rule metamdbg_hifi_coassembly_bulk:
         opts = config["metamdbg"].get("opts", "")
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_hifi_coassembly_bulk.log")
     shell:
         """
-        export PATH=$CONDA_PREFIX/bin:$PATH
-        (date && {METAMDBG_EXE} asm --in-hifi {input.reads} --out-dir $dirname({output.contigs}) \
+        (date && metaMDBG asm --in-hifi {input.reads} --out-dir $(dirname {output.contigs}) \
         --threads {threads} {params.opts} && date) &> >(tee {log})
         """
 
@@ -95,14 +90,13 @@ rule metamdbg_ont_individual:
         opts = config["metamdbg"].get("opts", "")
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_ont_individual_b26.log")
     shell:
         """
-        export PATH=$CONDA_PREFIX/bin:$PATH
-        (date && {METAMDBG_EXE} asm --in-ont {input.reads} --out-dir $dirname({output.contigs}) \
+        (date && metaMDBG asm --in-ont {input.reads} --out-dir $(dirname {output.contigs}) \
         --threads {threads} {params.opts} && date) &> >(tee {log})
         """
 
@@ -116,15 +110,14 @@ rule metamdbg_hybrid_b26:
         opts = config["metamdbg"].get("opts", "")
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_hybrid_b26.log")
     shell:
         """
-        export PATH=$CONDA_PREFIX/bin:$PATH
-        (date && {METAMDBG_EXE} asm --in-ont {input.hifi} {input.ont} \
-        --out-dir $dirname({output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
+        (date && metaMDBG asm --in-ont {input.hifi} {input.ont} \
+        --out-dir $(dirname {output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
         """
 
 rule metamdbg_hybrid_coassembly_bulk:
@@ -137,13 +130,12 @@ rule metamdbg_hybrid_coassembly_bulk:
         hifi_list_str = get_bulk_hifi_reads
     threads:
         config["metamdbg"]["threads"]
-    conda:
-        CONDA_ENV
+    singularity:
+        SIF_IMAGE
     log:
         os.path.join(LOG_DIR, "metamdbg_hybrid_coassembly_bulk.log")
     shell:
         """
-        export PATH=$CONDA_PREFIX/bin:$PATH
-        (date && {METAMDBG_EXE} asm --in-ont {params.hifi_list_str} {input.ont_read} \
-        --out-dir $dirname({output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
+        (date && metaMDBG asm --in-ont {params.hifi_list_str} {input.ont_read} \
+        --out-dir $(dirname {output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
         """
