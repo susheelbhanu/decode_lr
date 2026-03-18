@@ -7,7 +7,6 @@ Latest modification:
 Purpose: Running metagenomic analyses for the DECODE project
 """
 
-
 ##############################
 # MODULES
 import os
@@ -15,23 +14,14 @@ import re
 import glob
 import pandas as pd
 
-# importing specific scripts for parsing etc.
-# from scripts.utils import find_fast5, assembler_pairs
-
-
 ##############################
 # CONFIG
 include:
     "rules/init.smk"
 
-
 ##############################
 # TARGETS & RULES
-# List of (main) targets to be created
 TARGETS = []
-
-# Include rules and add targets based on the config file
-
 
 # ASSEMBLY
 if "lr_assembly" in config["steps"]:
@@ -49,6 +39,12 @@ if "lr_mags" in config["steps"]:
         "status/lr_binning.done"
     ]
 
+# PHYLOFLASH
+if "phyloflash" in config["steps"]:
+    include:
+        "rules/phyloflash.smk"
+    TARGETS += PHYLOFLASH_TARGETS
+
 
 # No targets
 if len(TARGETS) == 0:
@@ -57,4 +53,3 @@ if len(TARGETS) == 0:
 rule all:
     input:
         TARGETS
-

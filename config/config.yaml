@@ -6,8 +6,8 @@
 # STEPS
 
 # Steps to be done
-# steps: ["profiles", "assembly", "mags", "analysis"] # USER_INPUT
-steps: ["profiles"]
+# steps: ["profiles", "assembly", "mags", "analysis", "phyloflash"] # USER_INPUT
+steps: ["profiles", "phyloflash"]
 
 ##################################################
 # INPUT
@@ -29,6 +29,15 @@ metadata: "data" # USER_INPUT
 
 # path to the results folder
 results_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/results"
+
+# path to the log folder
+log_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/logs"
+
+# path to the benchmark folder
+benchmark_dir: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/metag/benchmarks"
+
+# HYBRID_INDIVIDUAL = config.get("hybrid_individual_sample", "")
+# ONT_FILE = os.path.abspath(config.get("ont_file", "."))
 
 ##################################################
 # SLURM PARAMETERS

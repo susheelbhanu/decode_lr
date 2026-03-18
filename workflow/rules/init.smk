@@ -105,8 +105,11 @@ if isinstance(cfg_samples, Mapping):
     # already set earlier
     pass
 
-HYBRID_INDIVIDUAL = config["hybrid_individual_sample"]         # sample ID (not a path)
-ONT_FILE          = os.path.abspath(config["ont_file"])         # real path
+HYBRID_INDIVIDUAL = config.get("hybrid_individual_sample", "")
+ONT_FILE          = os.path.abspath(config.get("ont_file", "."))
+
+#HYBRID_INDIVIDUAL = config["hybrid_individual_sample"]         # sample ID (not a path)
+#ONT_FILE          = os.path.abspath(config["ont_file"])         # real path
 
 ##################################################
 # EXECUTION

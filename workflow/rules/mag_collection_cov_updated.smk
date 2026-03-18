@@ -47,6 +47,11 @@ R2 = {basename(dirname(file)):file for file in glob.glob(f"{DATA}/preprocessed/r
 # ASM_folder_SR.update({"%s_SR"%basename(file):file for file in glob.glob(f"{ROOT}/WGS/assemblies/per_mice/*")})
 # ASM_folder_LR = {"COA_LR":f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/COA/metamdbg"}
 #ASM_folder_LR.update({"%s_LR"%basename(dirname(file)):file for file in glob.glob(f"{ROOT}/HiFi/assemblies/SSA/*/metamdbg")})
+
+# ------------ important -----------
+# be careful of how mag names are being built
+# here we define them as {asm}_LR_{bin}, but in summary they are written {asm}__{bin}
+# current fix is just changing the summary
 ASM_folder_LR = {"%s_LR"%basename(dirname(file)):file for file in glob.glob(f"/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/CEHsoil/HiFi/assemblies/SSA/*/metamdbg")}
 
 # ASM_folder = ASM_folder_SR
@@ -71,13 +76,13 @@ rule create_orf_database:
     output: fa = "{path}/dmag_scg.fa",
             bed = "{path}/dmag_scg.bed"
     run:
-        mag_to_dmag,dmag_to_mags = get_mag_dmag(DREP95)
-        asm_mags = defaultdict(set)
-        for mag in mag_to_dmag:
-            if mag not in SPIKE_IN:
-                asm,mag = mag.split("_Bin")
-                mag = f"Bin_{mag}"
-                asm_mags[asm].add(mag)
+        # mag_to_dmag,dmag_to_mags = get_mag_dmag(DREP95)
+        # asm_mags = defaultdict(set)
+        # for mag in mag_to_dmag:
+        #     if mag not in SPIKE_IN:
+        #         asm,mag = mag.split("_Bin")
+        #         mag = f"Bin_{mag}"
+        #         asm_mags[asm].add(mag)
         sanity_check = set()
         with open(output["fa"],"w") as handle_fa, open(output["bed"],"w") as handle_bed:
             for asm,fold in ASM_folder.items():

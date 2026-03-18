@@ -6,7 +6,7 @@
 # Actual rule jobs are submitted via the Snakemake SLURM profile.
 ##############################
 
-#SBATCH -J MAG_cov
+#SBATCH -J new_MAG_cov
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
