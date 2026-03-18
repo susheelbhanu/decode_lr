@@ -37,7 +37,7 @@ rule run_phyloflash:
         r2=lambda wc: R2[wc.sample]
     output:
         done=PHYLOFLASH_DONE
-    threads: 8
+    threads: 24
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb = get_resource("mem")
