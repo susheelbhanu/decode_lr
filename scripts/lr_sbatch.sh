@@ -22,16 +22,16 @@ SMK_ENV="snakemake" # USER INPUT REQUIRED
 # number of jobs for snakemake
 SMK_JOBS=16
 # snakemake file
-SMK_SMK="workflow/Snakefile"
+SMK_SMK="workflow/Snakefile_annotation"
 # config file
 SMK_CONFIG="config/lr_config.yaml" # USER INPUT REQUIRED
 # slurm config file
 SMK_SLURM="config/slurm.yaml"
 # slurm profile file
-SMK_PROFILE="profiles/slurm"
+SMK_PROFILE="profiles/slurm_annotation"
 # # slurm cluster call
 # SMK_CLUSTER="sbatch -p {cluster.partition} -q {cluster.qos} {cluster.explicit} -N {cluster.nodes} -n {cluster.n} -c {threads} -t {cluster.time} --job-name={cluster.job-name}"
-
+SMK_SIF_CACHE="/hpc-home/kar23heg/singularity_cache"
 
 ##############################
 # LAUNCHER
@@ -45,6 +45,8 @@ conda activate ${SMK_ENV}
 # --cluster-config ${SMK_SLURM} --cluster "${SMK_CLUSTER}" --jobs "${SMK_JOBS}" --rerun-incomplete -rp
 
 # run the pipeline (with profile)
-snakemake --profile "${SMK_PROFILE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk --unlock
-snakemake --profile "${SMK_PROFILE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk 
+# snakemake --profile "${SMK_PROFILE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk --unlock 
+# snakemake --profile "${SMK_PROFILE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk -n
 
+snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk --unlock
+snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk

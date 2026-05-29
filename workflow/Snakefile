@@ -44,6 +44,7 @@ if "phyloflash" in config["steps"]:
     include:
         "rules/phyloflash.smk"
     TARGETS += PHYLOFLASH_TARGETS
+    TARGETS += [PHYLOFLASH_MERGED_LONG, PHYLOFLASH_MERGED_WIDE]
 
 
 # No targets

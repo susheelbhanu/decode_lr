@@ -1,0 +1,36 @@
+##################################################
+# DECODE-LR  -  Annotation Snakefile
+#
+# Runs LongFlow's annotation workflow on pre-computed
+# decode_lr assemblies (contigs.fasta.gz).
+#
+# Usage (from the decode_lr repo root):
+#
+#   # Dry-run to check jobs:
+#   snakemake -s workflow/Snakefile_annotation \
+#       --profile profiles/slurm \
+#       --configfile config/config.yaml \
+#       --use-singularity \
+#       --singularity-args "--bind /ei,/hpc-home" \
+#       -n
+#
+#   # Submit to SLURM:
+#   snakemake -s workflow/Snakefile_annotation \
+#       --profile profiles/slurm \
+#       --configfile config/config.yaml \
+#       --use-singularity \
+#       --singularity-args "--bind /ei,/hpc-home" \
+#       -k
+#
+# Tip: add --singularity-prefix to a shared cache dir to avoid
+# re-downloading containers per user:
+#   --singularity-prefix /hpc-home/kar23heg/singularity_cache
+##################################################
+
+include: "rules/annotation.smk"
+
+# Workaround for Snakemake 7.x profile+cluster mode not resolving the
+# default target rule — explicitly re-declare the target here.
+rule all:
+    input: ANNOT_DIR + "/.annotation_all.done"
+

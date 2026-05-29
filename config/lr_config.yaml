@@ -6,8 +6,8 @@
 # STEPS
 
 # Steps to be done
-# steps: ["profiles", "lr_assembly", "lr_mags", "analysis"] # USER_INPUT
-steps: ["lr_assembly"]
+# steps: ["profiles", "lr_assembly", "lr_mags", "annotation", "analysis"] # USER_INPUT
+steps: ["lr_assembly", "annotation"]
 
 ##################################################
 # INPUT
@@ -123,6 +123,95 @@ slurm_partitions:
     max_mem: 4000
     min_threads: 1
     max_threads: 64
+
+##################################################
+# ANNOTATION CONFIG ADDITIONS
+#
+# Paste these blocks into your existing
+# decode_lr config/config.yaml
+##################################################
+
+# Path to LongFlow installation (for scripts and scg_data)
+longflow_dir: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/seb/repos/LongFlow
+
+# Results directory for annotation outputs
+# (can be the same as or alongside your assembly results)
+annotation_dir: /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/annotation
+
+# -------------------------------------------------------------------
+# Assembly paths: flat keys (no slashes) -> path to contigs.fasta.gz
+# These map to your decode_lr metamdbg_updated outputs.
+# -------------------------------------------------------------------
+assembly_paths:
+  # Individual HiFi
+  hifi_individual_b10_d3_0200_con:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/b10_d3_0200_con/contigs.fasta.gz
+  hifi_individual_b10_d3_1400_con:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/b10_d3_1400_con/contigs.fasta.gz
+  hifi_individual_b20_d3_0200_bio:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/b20_d3_0200_bio/contigs.fasta.gz
+  hifi_individual_b26_t3_con:       /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/b26_t3_con/contigs.fasta.gz
+  hifi_individual_r15_d3_0200_con:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/r15_d3_0200_con/contigs.fasta.gz
+  hifi_individual_r15_d3_1400_con:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/r15_d3_1400_con/contigs.fasta.gz
+  hifi_individual_r30_d3_0200_bio:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/r30_d3_0200_bio/contigs.fasta.gz
+  hifi_individual_r30_d3_1400_bio:  /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_individual/r30_d3_1400_bio/contigs.fasta.gz
+  # Coassemblies
+  hifi_coassembly_rhizo:            /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_coassembly_rhizo/contigs.fasta.gz
+  hifi_coassembly_bulk:             /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hifi_coassembly_bulk/contigs.fasta.gz
+  # ONT / hybrid
+  ont_individual_b26:               /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/ont_individual_b26/contigs.fasta.gz
+  hybrid_b26:                       /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hybrid_b26/contigs.fasta.gz
+  hybrid_coassembly_bulk:           /ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/lr_results_20260202/assemblies/hybrid_coassembly_bulk/contigs.fasta.gz
+
+# -------------------------------------------------------------------
+# Annotation tools and databases
+# Update paths to match your EI HPC database locations.
+# -------------------------------------------------------------------
+annotation:
+  prodigal_splits: 20       # number of parallel prodigal batches
+  orf_dereplication: 0.99   # mmseqs clustering identity for ORFs/SCGs
+
+  # CheckM database (used only for HMM-based SCG detection)
+  # Point to the CheckM database directory (contains hmms/checkm.hmm)
+  checkm:  /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/checkm
+
+  # CheckM2 diamond database (for MAG quality — used in binning step, listed here for completeness)
+  checkm2: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/checkm2/CheckM2_database/uniref100.KO.1.dmnd
+
+  # Diamond databases — add or remove as needed
+  diamond:
+    CARD:
+      db:         /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/card_5_10_21/CARD_51021_2.0.8.dmnd
+      annotation: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/card_5_10_21/card_5_10_21_Annotation.tsv
+      # [min_Bitscore, max_Evalue, min_Pid, min_subject_pid, min_coverage, min_query_coverage]
+      filter: [0, 1e-5, 0.8, 0, 0.2, 0.8]
+    CARD_LAX:
+      db:         /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/card_5_10_21/CARD_51021_2.0.8.dmnd
+      annotation: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/card_5_10_21/card_5_10_21_Annotation.tsv
+      filter: [0, 1e-5, 0.4, 0, 0.2, 0.2]
+    IntI:
+      db:         /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/card_intI1_prev/IntI.db.0.9.24.dmnd
+      annotation: none
+      filter: [0, 1e-5, 0.8, 0, 0.2, 0.8]
+
+  # BLCA 16S taxonomy (leave db/taxa/bin empty strings to skip)
+  blca:
+    bin:  /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/seb/repos/BLCA
+    db:   /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/BLCA/itgDB/taxa_itgdb_seq.fasta
+    taxa: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/BLCA/itgDB/translated_taxa_itgdb_taxa.txt
+
+  # KO annotation via kofamscan (leave profiles empty to skip)
+  kofamscan:
+    profiles:  /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/ko_hmm/ko_hmm.hmm
+    ko_list:   /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/ko_hmm/ko_list
+    smk_config: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/seb/snakemake_config
+
+  # geNomad (leave empty string to skip)
+  genomad_db: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/genomad/genomad_db
+
+  # CAT taxonomy (leave empty strings to skip)
+  cat_path: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/seb/repos/CAT_pack/CAT_pack
+  cat_db:   /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/cat_bat_rat/20231120_CAT_gtdb
+
+  # InterProScan (leave empty string to skip — very slow, optional)
+  ip_db: ""
 
 #slurm_partitions:
 #  highmem:

@@ -3,7 +3,7 @@
 # NOTE: change all parameters with the tag "USER_INPUT" !!!
 
 # main workflow snakemake file
-snakefile: "workflow/Snakefile"
+snakefile: "workflow/Snakefile_annotation"
 
 # total number of cores and jobs
 cores: 112
@@ -55,4 +55,4 @@ rerun-trigger: "mtime"
 # singularity
 use-singularity: True
 singularity-prefix: "/hpc-home/kar23heg/singularity_cache"  # USER_INPUT
-# singularity-args: "--bind /ei,/hpc-home"
+singularity-args: "--bind /ei,/hpc-home"

@@ -6,7 +6,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH --time=10-00:00:00
+#SBATCH --time=04-00:00:00
 #SBATCH -p ei-medium
 #SBATCH --qos=qos-batch
 
@@ -38,4 +38,4 @@ snakemake -s "${SMK_SMK}" \
   --profile "${SMK_PROFILE}" \
   --jobs "${SMK_JOBS}" \
   --rerun-incomplete -rpk \
-  "${SMK_TARGET}" 
+  "${SMK_TARGET}" all_phyloflash_html_abundance
