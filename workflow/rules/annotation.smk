@@ -39,7 +39,7 @@ def _build_slurm_partitions(cfg):
 SLURM_PARTITIONS = _build_slurm_partitions(config)
 
 def get_resource_real(wildcards, input, threads, attempt,
-                      SLURM_PARTITIONS="", mode="", mult=2, min_size=10000):
+                      SLURM_PARTITIONS="", mode="", mult=5, min_size=80000):
     def _return(mem, partition, thr, mode):
         if mode == "mem":       return int(mem)
         if mode == "partition": return partition
