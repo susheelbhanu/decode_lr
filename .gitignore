@@ -157,3 +157,5 @@ containers**
 containers/**
 containers/*.sif
 *.bam
+.keras/**
+*.keras/keras.json

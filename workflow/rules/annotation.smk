@@ -533,12 +533,13 @@ if CAT_DB:
             db      = glob.glob(f"{CAT_DB}/db/*.dmnd"),
         output: ORF2LCA = "{path}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt"
         params: Dir = "{path}/annotation/temp_splits/Batch_{nb}_contigs"
-        threads: 32
+        threads: 48
         resources:
-            slurm_partition = get_resource("partition", mult=3),
-            mem_mb          = get_resource("mem", mult=3),
+            slurm_partition = get_resource("partition", mult=7),
+            mem_mb          = get_resource("mem", mult=7),
         shell: """
         if [ -s {input.contigs} ]; then
+            module load diamond/2.1.15.169
             {CAT_PATH}/CAT_pack contigs \
                 -c {input.contigs} -d {CAT_DB}/db -t {CAT_DB}/tax \
                 -p {input.faa} -n {threads} --out_prefix {params.Dir} \
@@ -606,7 +607,7 @@ rule BLCA:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
     shell: """
-        cd {params.path}
+        module load clustalo/1.2.4 && module load blast+/2.16.0 && cd {params.path}
         python {params.path}/2.blca_main.py \
             -i {input.contigs} -p {threads} -o {output} \
             -r {params.taxa} -q {params.db}

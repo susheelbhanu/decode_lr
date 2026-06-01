@@ -12,3 +12,102 @@ short_preproc:
   partition: "ei-long"
   time: "2-00:00:00"
 
+
+# ── Fast local/aggregation rules ──────────────────────────────────────
+annotation_all:
+  time: "0-00:10:00"
+  partition: "ei-medium"
+
+prepare_contigs:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+split_fasta:
+  time: "0-02:00:00"
+  partition: "ei-medium"
+
+cat_orfs:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+parse_cogs_annotation:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+extract_SCG_sequences:
+  time: "0-12:00:00"
+  partition: "ei-medium"
+
+scg_cluster_def:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+bogus_bed:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+sort_bed:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+annotation_diamond:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+CAT_ORF_annotation:
+  time: "0-01:00:00"
+  partition: "ei-medium"
+
+extract_rna_seq:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+# ── Medium compute rules ───────────────────────────────────────────────
+prodigal:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+hmmsearch:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+Batch_rpsblast:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+diamond:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+cluster_SCG:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+cluster_ORF:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+get_component_quality:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+identify_rRNA:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+BLCA:
+  time: "2-00:00:00"
+  partition: "ei-long"
+
+# ── Heavy / long-running rules ─────────────────────────────────────────
+koannotation:
+  time: "4-00:00:00"
+  partition: "ei-long"
+
+CAT_annotation:
+  time: "2-00:00:00"
+  partition: "ei-largemem"
+
+genomad:
+  time: "2-00:00:00"
+  partition: "ei-largemem"
