@@ -539,11 +539,11 @@ if CAT_DB:
             mem_mb          = get_resource("mem", mult=7),
         shell: """
         if [ -s {input.contigs} ]; then
-            module load diamond/2.1.15.169
+#            module load diamond/2.1.15.169
             {CAT_PATH}/CAT_pack contigs \
                 -c {input.contigs} -d {CAT_DB}/db -t {CAT_DB}/tax \
                 -p {input.faa} -n {threads} --out_prefix {params.Dir} \
-                --top 11 --I_know_what_Im_doing --force
+                --top 11 --I_know_what_Im_doing --force --path_to_diamond /hpc-home/kar23heg/bin/diamond
         else
             touch {output}
         fi
