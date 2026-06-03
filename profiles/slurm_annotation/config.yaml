@@ -22,6 +22,7 @@ default-resources:
   - exclude="n83029"
   - slurm_partition="ei-medium,ei-long,ei-largemem"   # fallback if a rule doesn't compute one; # USER_INPUT
   - mem_mb=104857                           # fallback MB (1 TB); # USER_INPUT
+
 #  - time="1-00:00:00" 
 
 # dynamic submission: partition/mem from {resources.*}, qos/time from cluster-config
@@ -44,7 +45,7 @@ latency-wait: 120
 # number of times to restart failing jobs
 restart-times: 3
 # slurm config (ABSOLUTE PATH !!!)
-cluster-config: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/profiles/slurm/slurm.yaml" #"/hpc-home/kar23heg/decode_pipeline/profiles/slurm/lr_slurm.yaml" # USER_INPUT
+cluster-config: "/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/decode_lr/profiles/slurm_annotation/slurm.yaml" #"/hpc-home/kar23heg/decode_pipeline/profiles/slurm/lr_slurm.yaml" # USER_INPUT
 # max. number of cluster/drmaa jobs per second
 max-jobs-per-second: 1
 # max. number of job status checks per second

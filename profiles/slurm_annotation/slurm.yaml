@@ -60,7 +60,7 @@ CAT_ORF_annotation:
 
 extract_rna_seq:
   time: "0-04:00:00"
-  partition: "ei-medium"
+  partition: "ei-largemem"
 
 # ── Medium compute rules ───────────────────────────────────────────────
 prodigal:
