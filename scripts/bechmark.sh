@@ -4,11 +4,11 @@
 # SLURM  (orchestrator only — child jobs are submitted by the profile)
 # NOTE: used for this script only, NOT for the snakemake child jobs below.
 #
-#SBATCH -J orf_bench
+#SBATCH -J benchmark_ORFs
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH --time=1-00:00:00
+#SBATCH --time=7-00:00:00
 #SBATCH -p ei-long
 #SBATCH --qos=normal          # NOT qos-batch (doesn't exist here)
 ##############################
@@ -64,4 +64,4 @@ done
 #     --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" -n
 
 snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk --unlock
-snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk -n
+snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk 
