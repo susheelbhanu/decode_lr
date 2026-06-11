@@ -12,3 +12,20 @@ short_preproc:
   partition: "ei-long"
   time: "2-00:00:00"
 
+metamdbg_hifi_individual:
+  time: "7-00:00:00"
+
+metamdbg_hifi_coassembly_rhizo:
+  time: "30-00:00:00"
+
+metamdbg_hifi_coassembly_bulk:
+  time: "30-00:00:00"
+
+metamdbg_ont_individual:
+  time: "7-00:00:00"
+
+metamdbg_hybrid_b26:
+  time: "14-00:00:00"
+
+metamdbg_hybrid_coassembly_bulk:
+  time: "21-00:00:00"

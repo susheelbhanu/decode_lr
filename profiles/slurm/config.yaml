@@ -20,7 +20,7 @@ default-resources:
   - tmpdir="/tmp"   # USER_INPUT
   - slurm_account=tgac
   - exclude="n83029"
-  - slurm_partition="ei-medium,ei-long,ei-largemem"   # fallback if a rule doesn't compute one; # USER_INPUT
+  - slurm_partition="ei-long"   # fallback if a rule doesn't compute one; # USER_INPUT
   - mem_mb=104857                           # fallback MB (1 TB); # USER_INPUT
   - time="1-00:00:00" 
 
