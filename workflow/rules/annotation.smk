@@ -18,6 +18,8 @@ from collections import defaultdict, Counter
 from os.path import basename, dirname, realpath, abspath
 from Bio.SeqIO.FastaIO import SimpleFastaParser as sfp
 
+localrules: extract_rna_seq
+
 # ------------------------------------------------------------------ #
 #  SLURM resource setup (mirrors init.smk without the sample loading)
 # ------------------------------------------------------------------ #

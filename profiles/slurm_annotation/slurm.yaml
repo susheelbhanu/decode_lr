@@ -96,7 +96,7 @@ identify_rRNA:
   partition: "ei-medium"
 
 BLCA:
-  time: "2-00:00:00"
+  time: "5-00:00:00"
   partition: "ei-long"
 
 # ── Heavy / long-running rules ─────────────────────────────────────────
@@ -105,9 +105,9 @@ koannotation:
   partition: "ei-long"
 
 CAT_annotation:
-  time: "2-00:00:00"
+  time: "3-00:00:00"
   partition: "ei-largemem"
 
 genomad:
-  time: "2-00:00:00"
+  time: "5-00:00:00"
   partition: "ei-largemem"

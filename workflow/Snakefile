@@ -28,7 +28,7 @@ if "lr_assembly" in config["steps"]:
     include:
         "rules/metamdbg_updated.smk"
     TARGETS += [
-        "status/lr_assembly_new.done"
+        "status/lr_assembly_new_v1.4.done"
     ]
 
 # MAGS
