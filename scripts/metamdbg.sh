@@ -10,7 +10,7 @@
 #SBATCH -c 1
 #SBATCH --time=40-00:00:00
 #SBATCH -p ei-long
-#SBATCH --qos=qos-batch
+#SBATCH --qos=normal
 
 ##############################
 # SNAKEMAKE
