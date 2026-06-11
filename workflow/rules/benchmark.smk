@@ -49,7 +49,7 @@ OUT = os.path.abspath(config.get(
     "data/CEH_soil_project/lr_results_20260202/benchmark_orfcaller"))
 
 # Containers -------------------------------------------------------- #
-SIF_DIR        = "/hpc-home/kar23heg/singularity_cache"
+SIF_DIR        = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/decode_lr/singularity_cache"
 SIF_PRODIGALGV = join(SIF_DIR, "prodigal-gv_2.11.0.sif")   # existing
 SIF_PYRODIGAL  = join(SIF_DIR, "pyrodigalgv_0.3.2.sif")    # NEW - pull first
 SIF_FETCHMGS   = join(SIF_DIR, "fetchmgs.sif")             # NEW - pull first
