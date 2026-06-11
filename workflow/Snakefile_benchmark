@@ -1,0 +1,28 @@
+##################################################
+# DECODE-LR  -  ORF-caller benchmark Snakefile
+#
+# Compares the existing prodigal-gv ORF step vs a new pyrodigal step on
+# 1/10th of one HiFi sample, with identical downstream SCG annotation,
+# and writes Snakemake benchmark files (time + memory) for each step.
+#
+# Run via the launcher (one SLURM allocation, local execution):
+#   sbatch scripts/benchmark_sbatch.sh
+#
+# Or manually:
+#   snakemake -s workflow/Snakefile_benchmark \
+#       --configfile config/lr_config.yaml \
+#       --cores 32 --use-singularity \
+#       --singularity-args "--bind /ei,/hpc-home" \
+#       --singularity-prefix /hpc-home/kar23heg/singularity_cache -p
+#
+# Dry-run first:  add -n
+##################################################
+# TARGETS & RULES
+TARGETS = []
+
+include: "rules/benchmark.smk"
+TARGETS += ["status/benchmark.done"]
+
+rule benchmark_all:
+    input:
+        TARGETS
