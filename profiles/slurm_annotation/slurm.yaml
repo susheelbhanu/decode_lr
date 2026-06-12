@@ -1,7 +1,7 @@
 __default__:
-  time: "01-00:00:00"
+  time: "01-12:00:00"
   partition: "ei-medium"
-  qos: "qos-batch"
+  qos: "normal"
   job-name: "LR_DECODE.{rule}"
 
 input_short:
@@ -111,3 +111,67 @@ CAT_annotation:
 genomad:
   time: "5-00:00:00"
   partition: "ei-largemem"
+
+# ══════════════════════════════════════════════════════════════════════
+#  ORF-caller benchmark rules  (workflow/Snakefile_benchmark)
+#  partition here is cosmetic — actual partition comes from each rule's
+#  resources.slurm_partition (= ei-long). qos: normal set explicitly so
+#  these work even if __default__ is ever reverted.
+#  NB: 'split_fasta' is NOT repeated here — the benchmark reuses the
+#      existing split_fasta entry above.
+# ══════════════════════════════════════════════════════════════════════
+subset_contigs:
+  time: "0-02:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+orf_prodigal_gv_whole:        # regular prodigal -> 2 days
+  time: "3-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+orf_prodigal_gv_chunk:        # regular prodigal -> 2 days
+  time: "1-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+orf_pyrodigal_gv_whole:
+  time: "1-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+orf_pyrodigal_gv_chunk:
+  time: "1-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+cat_prodigal_gv:
+  time: "0-04:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+cat_pyrodigal_gv:
+  time: "0-04:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+scg_search:                   # hmmsearch / rpsblast (the slow SCG step) -> 2 days
+  time: "3-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+scg_parse:
+  time: "0-04:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+extract_scg:                  # scg extract -> 2 days
+  time: "3-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 
+fetchmg_pyrodigal_gv:
+  time: "1-00:00:00"
+  partition: "ei-long"
+  qos: "normal"
+ 

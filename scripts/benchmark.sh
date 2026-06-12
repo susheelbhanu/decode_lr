@@ -8,7 +8,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
-#SBATCH --time=1-00:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH -p ei-long
 #SBATCH --qos=normal          # NOT qos-batch (doesn't exist here)
 ##############################
