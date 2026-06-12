@@ -332,26 +332,25 @@ rule extract_scg:
         "{SCRIPTS}/Extract_SCG.py {input.fna} {input.annotation} "
         "{SCG_DATA}/scg_cogs_min0.97_max1.03_unique_genera.txt {input.gff} > {output}"
 
+
 # ================================================================== #
-#  NEW: fetchMGs marker-gene extraction (alternative SCG route)
-#  Runs off the pyrodigal-gv proteins+genes (mOTU 40 universal MGs).
-#  NOTE: '-x ""' = find hmmsearch/seqtk on $PATH (present in the container).
-#  If it can't locate its bundled HMM library, add '-l <fetchMGs lib path>'.
-#  Confirm entrypoint: singularity exec <sif> which fetchMGs.pl
+#  fetchMGs marker-gene extraction (alternative SCG route)
+#  Runs off each caller's whole proteins+genes (mOTU 40 universal MGs),
+#  so it mirrors the hmmsearch/rpsblast SCG route (also per-tool).
 # ================================================================== #
-rule fetchmg_pyrodigal_gv:
+rule fetchmg:
     input:
-        faa = join(OUT, "pyrodigal_gv_whole", "contigs.faa"),
-        fna = join(OUT, "pyrodigal_gv_whole", "contigs.fna"),
+        faa = join(OUT, "{tool}_whole", "contigs.faa"),
+        fna = join(OUT, "{tool}_whole", "contigs.fna"),
     output:
-        done = join(OUT, "pyrodigal_gv_whole", "fetchMGs.done"),
+        done = join(OUT, "{tool}_whole", "fetchMGs.done"),
     params:
-        outdir = join(OUT, "pyrodigal_gv_whole", "fetchMGs_out"),
+        outdir = join(OUT, "{tool}_whole", "fetchMGs_out"),
     threads: BENCH_THREADS
     resources:
         mem_mb          = BENCH_MEM_MB,
         slurm_partition = BENCH_PARTITION,
-    benchmark: repeat(join(OUT, "benchmark", "fetchmg_pyrodigal_gv.tsv"), REPEATS)
+    benchmark: repeat(join(OUT, "benchmark", "fetchmg_{tool}.tsv"), REPEATS)
     singularity: SIF_FETCHMGS
     shell:
         r"""
@@ -361,14 +360,14 @@ rule fetchmg_pyrodigal_gv:
         """
 
 # ================================================================== #
-#  SUMMARY  (collate benchmark TSVs; ORF/SCG/MG counts)   [run locally]
+#  SUMMARY  (collate benchmark TSVs; ORF / SCG / fetchMGs counts)  [run locally]
 # ================================================================== #
 rule summary:
     input:
         whole = expand(join(OUT, "{tool}_whole", "contigs.faa"), tool=TOOLS),
         chunk = expand(join(OUT, "{tool}_chunk", "contigs.faa"), tool=TOOLS),
         scg   = expand(join(OUT, "{tool}_whole", "contigs_SCG.fna"), tool=TOOLS),
-        mg    = join(OUT, "pyrodigal_gv_whole", "fetchMGs.done"),
+        mg    = expand(join(OUT, "{tool}_whole", "fetchMGs.done"), tool=TOOLS),
     output:
         bench = join(OUT, "summary", "benchmark_summary.tsv"),
         equiv = join(OUT, "summary", "equivalence.tsv"),
@@ -376,7 +375,6 @@ rule summary:
         bdir   = join(OUT, "benchmark"),
         outdir = OUT,
         tools  = TOOLS,
-        mgdir  = join(OUT, "pyrodigal_gv_whole", "fetchMGs_out"),
     run:
         os.makedirs(dirname(output.bench), exist_ok=True)
 
@@ -402,7 +400,7 @@ rule summary:
                             d.get("mean_load", ""), d.get("cpu_time", ""),
                         ]) + "\n")
 
-        # ---- equivalence: ORF + SCG + fetchMGs counts ----
+        # ---- equivalence: ORF + SCG + fetchMGs marker counts, per caller ----
         def count_fasta(p):
             n = 0
             if os.path.exists(p):
@@ -417,9 +415,9 @@ rule summary:
             for t in params.tools:
                 faa = join(params.outdir, t + "_whole", "contigs.faa")
                 scg = join(params.outdir, t + "_whole", "contigs_SCG.fna")
-                out.write(f"{t}\t{count_fasta(faa)}\t{count_fasta(scg)}\n")
-            mg_faa = sorted(glob.glob(join(params.mgdir, "*.faa")))
-            mg_n = sum(count_fasta(p) for p in mg_faa)
-            pyr = join(params.outdir, "pyrodigal_gv_whole", "contigs.faa")
-            out.write(f"pyrodigal_gv+fetchMGs\t{count_fasta(pyr)}\t{mg_n}\n")
-
+                out.write(f"{t} (hmmsearch)\t{count_fasta(faa)}\t{count_fasta(scg)}\n")
+            for t in params.tools:
+                faa   = join(params.outdir, t + "_whole", "contigs.faa")
+                mgdir = join(params.outdir, t + "_whole", "fetchMGs_out")
+                mg_n  = sum(count_fasta(p) for p in sorted(glob.glob(join(mgdir, "*.faa"))))
+                out.write(f"{t} (fetchMGs)\t{count_fasta(faa)}\t{mg_n}\n")

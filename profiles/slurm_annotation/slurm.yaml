@@ -170,8 +170,7 @@ extract_scg:                  # scg extract -> 2 days
   partition: "ei-long"
   qos: "normal"
  
-fetchmg_pyrodigal_gv:
+fetchmg:
   time: "1-00:00:00"
   partition: "ei-long"
-  qos: "normal"
- 
+  qos: "normal" 
