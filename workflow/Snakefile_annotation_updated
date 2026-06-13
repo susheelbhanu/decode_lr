@@ -1,0 +1,31 @@
+##################################################
+# DECODE-LR  —  Annotation Updated Snakefile
+#
+# Runs the updated annotation workflow (pyrodigal + fetchMGs + kofamscan_direct)
+# on pre-computed decode_lr assemblies (contigs.fasta.gz).
+#
+# Usage (from the decode_lr repo root):
+#
+#   # Dry-run:
+#   snakemake -s workflow/Snakefile_annotation_updated \
+#       --profile profiles/slurm_annotation \
+#       --configfile config/lr_config.yaml \
+#       --use-singularity \
+#       --singularity-args "--bind /ei,/hpc-home" \
+#       -n
+#
+#   # Submit to SLURM:
+#   snakemake -s workflow/Snakefile_annotation_updated \
+#       --profile profiles/slurm_annotation \
+#       --configfile config/lr_config.yaml \
+#       --use-singularity \
+#       --singularity-args "--bind /ei,/hpc-home" \
+#       -k
+##################################################
+
+include: "rules/annotation_updated.smk"
+
+# Workaround for Snakemake 7.x profile+cluster mode not resolving the
+# default target rule — explicitly re-declare the target here.
+rule all:
+    input: ANNOT_DIR + "/.annotation_all.done"

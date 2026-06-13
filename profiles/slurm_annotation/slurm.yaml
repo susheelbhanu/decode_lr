@@ -12,21 +12,54 @@ short_preproc:
   partition: "ei-long"
   time: "2-00:00:00"
 
-
-# ── Fast local/aggregation rules ──────────────────────────────────────
+# ── Target rules ──────────────────────────────────────────────────────
 annotation_all:
   time: "0-00:10:00"
   partition: "ei-medium"
 
+# ── Contig prep ───────────────────────────────────────────────────────
 prepare_contigs:
   time: "0-04:00:00"
   partition: "ei-medium"
 
+# ── Step 1: ORF calling ───────────────────────────────────────────────
+pyrodigal:
+  time: "1-00:00:00"
+  partition: "ei-long"
+
+# Original prodigal chain (kept for CAT_annotation batches)
 split_fasta:
   time: "0-02:00:00"
   partition: "ei-medium"
 
+prodigal:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
 cat_orfs:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+# ── Step 2: KO annotation ─────────────────────────────────────────────
+kofamscan_direct:
+  time: "4-00:00:00"
+  partition: "ei-long"
+
+# Original nested-snakemake KO (kept, not used in updated chain)
+koannotation:
+  time: "4-00:00:00"
+  partition: "ei-long"
+
+# ── Step 3: SCG detection ─────────────────────────────────────────────
+hmmsearch:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+Batch_rpsblast:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+parse_scg_whole:
   time: "0-04:00:00"
   partition: "ei-medium"
 
@@ -42,43 +75,6 @@ scg_cluster_def:
   time: "0-04:00:00"
   partition: "ei-medium"
 
-bogus_bed:
-  time: "0-04:00:00"
-  partition: "ei-medium"
-
-sort_bed:
-  time: "0-04:00:00"
-  partition: "ei-medium"
-
-annotation_diamond:
-  time: "2-00:00:00"
-  partition: "ei-medium"
-
-CAT_ORF_annotation:
-  time: "0-01:00:00"
-  partition: "ei-medium"
-
-extract_rna_seq:
-  time: "0-04:00:00"
-  partition: "ei-largemem"
-
-# ── Medium compute rules ───────────────────────────────────────────────
-prodigal:
-  time: "2-00:00:00"
-  partition: "ei-medium"
-
-hmmsearch:
-  time: "2-00:00:00"
-  partition: "ei-medium"
-
-Batch_rpsblast:
-  time: "2-00:00:00"
-  partition: "ei-medium"
-
-diamond:
-  time: "2-00:00:00"
-  partition: "ei-medium"
-
 cluster_SCG:
   time: "2-00:00:00"
   partition: "ei-medium"
@@ -87,10 +83,42 @@ cluster_ORF:
   time: "2-00:00:00"
   partition: "ei-medium"
 
+fetchMGs:
+  time: "1-00:00:00"
+  partition: "ei-long"
+
+# ── Contig quality ────────────────────────────────────────────────────
+bogus_bed:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
+sort_bed:
+  time: "0-04:00:00"
+  partition: "ei-medium"
+
 get_component_quality:
   time: "2-00:00:00"
   partition: "ei-medium"
 
+# ── Diamond annotation ────────────────────────────────────────────────
+diamond:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+annotation_diamond:
+  time: "2-00:00:00"
+  partition: "ei-medium"
+
+# ── CAT taxonomy (still uses prodigal batches) ────────────────────────
+CAT_annotation:
+  time: "3-00:00:00"
+  partition: "ei-largemem"
+
+CAT_ORF_annotation:
+  time: "0-01:00:00"
+  partition: "ei-medium"
+
+# ── 16S / BLCA ────────────────────────────────────────────────────────
 identify_rRNA:
   time: "2-00:00:00"
   partition: "ei-medium"
@@ -99,78 +127,63 @@ BLCA:
   time: "5-00:00:00"
   partition: "ei-long"
 
-# ── Heavy / long-running rules ─────────────────────────────────────────
-koannotation:
-  time: "4-00:00:00"
-  partition: "ei-long"
-
-CAT_annotation:
-  time: "3-00:00:00"
-  partition: "ei-largemem"
-
+# ── Step 4: geNomad ──────────────────────────────────────────────────
 genomad:
   time: "5-00:00:00"
   partition: "ei-largemem"
 
-# ══════════════════════════════════════════════════════════════════════
-#  ORF-caller benchmark rules  (workflow/Snakefile_benchmark)
-#  partition here is cosmetic — actual partition comes from each rule's
-#  resources.slurm_partition (= ei-long). qos: normal set explicitly so
-#  these work even if __default__ is ever reverted.
-#  NB: 'split_fasta' is NOT repeated here — the benchmark reuses the
-#      existing split_fasta entry above.
-# ══════════════════════════════════════════════════════════════════════
+# ── Benchmark rules (kept for completeness) ───────────────────────────
 subset_contigs:
   time: "0-02:00:00"
   partition: "ei-long"
   qos: "normal"
- 
-orf_prodigal_gv_whole:        # regular prodigal -> 2 days
+
+orf_prodigal_gv_whole:
   time: "3-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
-orf_prodigal_gv_chunk:        # regular prodigal -> 2 days
+
+orf_prodigal_gv_chunk:
   time: "1-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 orf_pyrodigal_gv_whole:
   time: "1-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 orf_pyrodigal_gv_chunk:
   time: "1-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 cat_prodigal_gv:
   time: "0-04:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 cat_pyrodigal_gv:
   time: "0-04:00:00"
   partition: "ei-long"
   qos: "normal"
- 
-scg_search:                   # hmmsearch / rpsblast (the slow SCG step) -> 2 days
+
+scg_search:
   time: "3-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 scg_parse:
   time: "0-04:00:00"
   partition: "ei-long"
   qos: "normal"
- 
-extract_scg:                  # scg extract -> 2 days
+
+extract_scg:
   time: "3-00:00:00"
   partition: "ei-long"
   qos: "normal"
- 
+
 fetchmg:
   time: "1-00:00:00"
   partition: "ei-long"
-  qos: "normal" 
+  qos: "normal"
