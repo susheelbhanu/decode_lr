@@ -783,7 +783,7 @@ rule extract_rna_seq:
 rule BLCA:
     input:  contigs = "{path}/annotation/16S_seqs.fa"
     output: "{path}/annotation/16S_blca.tsv"
-    threads: 32
+    threads: 64
     params:
         db   = BLCA["db"],
         taxa = BLCA["taxa"],
@@ -792,11 +792,12 @@ rule BLCA:
         slurm_partition = get_resource("partition", min_size=150000),
         mem_mb          = get_resource("mem", min_size=150000),
     shell: """
-        module load clustalo/1.2.4
+        module load mafft/7.520
         module load blast+/2.16.0
         cd {params.path}
         python {params.path}/2.blca_main.py \
-            -i {input.contigs} -p {threads} -o {output} \
+            -i {input.contigs} -p {threads} -n 50 \
+            --align mafft -o {output} \
             -r {params.taxa} -q {params.db}
     """
 

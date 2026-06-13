@@ -131,6 +131,7 @@ BLCA:
   time: "5-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
+  cpus-per-task: 64
 
 # ── Step 4: geNomad ──────────────────────────────────────────────────
 genomad:
