@@ -213,8 +213,8 @@ rule pyrodigal:
     priority: 100
     threads: 32
     resources:
-        slurm_partition = get_resource("partition", min_size=150000),
-        mem_mb          = get_resource("mem", min_size=150000),
+        slurm_partition = get_resource("partition", min_size=375000),
+        mem_mb          = get_resource("mem", min_size=375000),
     singularity: SIF_PYRODIGAL
     shell: """
     pyrodigal-gv -i {input} -a {output.faa} -d {output.fna} \
