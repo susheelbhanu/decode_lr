@@ -25,7 +25,8 @@ prepare_contigs:
 # ── Step 1: ORF calling ───────────────────────────────────────────────
 pyrodigal:
   time: "1-00:00:00"
-  partition: "ei-long"
+  partition: "ei-largemem"
+  mem: "300000"
 
 # Original prodigal chain (kept for CAT_annotation batches)
 split_fasta:
