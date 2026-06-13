@@ -114,6 +114,7 @@ annotation_diamond:
 CAT_annotation:
   time: "3-00:00:00"
   partition: "ei-largemem"
+  mem: "300000"
 
 CAT_ORF_annotation:
   time: "0-01:00:00"
@@ -126,7 +127,8 @@ identify_rRNA:
 
 BLCA:
   time: "5-00:00:00"
-  partition: "ei-long"
+  partition: "ei-largemem"
+  mem: "300000"
 
 # ── Step 4: geNomad ──────────────────────────────────────────────────
 genomad:
