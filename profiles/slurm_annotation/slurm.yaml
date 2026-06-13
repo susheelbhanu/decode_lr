@@ -54,7 +54,8 @@ koannotation:
 # ── Step 3: SCG detection ─────────────────────────────────────────────
 hmmsearch:
   time: "2-00:00:00"
-  partition: "ei-medium"
+  partition: "ei-largemem"
+  mem: "300000"
 
 Batch_rpsblast:
   time: "2-00:00:00"
@@ -70,7 +71,8 @@ parse_cogs_annotation:
 
 extract_SCG_sequences:
   time: "0-12:00:00"
-  partition: "ei-medium"
+  partition: "ei-largemem"
+  mem: "300000"
 
 scg_cluster_def:
   time: "0-04:00:00"
@@ -134,6 +136,7 @@ BLCA:
 genomad:
   time: "5-00:00:00"
   partition: "ei-largemem"
+  mem: "300000"
 
 # ── Benchmark rules (kept for completeness) ───────────────────────────
 subset_contigs:
