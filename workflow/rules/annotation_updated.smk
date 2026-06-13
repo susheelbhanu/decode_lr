@@ -169,8 +169,7 @@ wildcard_constraints:
 #  Rule priority: new whole-fasta rules take precedence over
 #  the original batch-based rules where outputs overlap.
 # ------------------------------------------------------------------ #
-ruleorder: kofamscan_direct > koannotation
-ruleorder: parse_scg_whole > parse_cogs_annotation
+ruleorder: pyrodigal > cat_orfs
 
 # ================================================================== #
 #  TARGET RULE
@@ -248,29 +247,30 @@ rule prodigal:
     fi
     """
 
-rule cat_orfs:
-    input:
-        faa = expand("{{path}}/temp_splits/Batch_{nb}.faa", nb=range(PRODIGAL_SPLIT)),
-        fna = expand("{{path}}/temp_splits/Batch_{nb}.fna", nb=range(PRODIGAL_SPLIT)),
-        gff = expand("{{path}}/temp_splits/Batch_{nb}.gff", nb=range(PRODIGAL_SPLIT)),
-    output:
-        faa = "{path}/contigs.faa",
-        fna = "{path}/contigs.fna",
-        gff = "{path}/contigs.gff",
-    resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
-    run:
-        shell("cat {input.faa} > {output.faa}")
-        shell("cat {input.fna} > {output.fna}")
-        header = next(open(input["gff"][0]))
-        with open(output["gff"], "w") as handle_w:
-            handle_w.write(header)
-            for file in input["gff"]:
-                if os.stat(file).st_size > 0:
-                    with open(file) as handle_r:
-                        _ = next(handle_r)
-                        handle_w.writelines(line for line in handle_r)
+# rule cat_orfs — DISABLED: pyrodigal produces contigs.faa/fna/gff directly
+# rule cat_orfs:
+#     input:
+#         faa = expand("{{path}}/temp_splits/Batch_{nb}.faa", nb=range(PRODIGAL_SPLIT)),
+#         fna = expand("{{path}}/temp_splits/Batch_{nb}.fna", nb=range(PRODIGAL_SPLIT)),
+#         gff = expand("{{path}}/temp_splits/Batch_{nb}.gff", nb=range(PRODIGAL_SPLIT)),
+#     output:
+#         faa = "{path}/contigs.faa",
+#         fna = "{path}/contigs.fna",
+#         gff = "{path}/contigs.gff",
+#     resources:
+#         slurm_partition = get_resource("partition"),
+#         mem_mb          = get_resource("mem"),
+#     run:
+#         shell("cat {input.faa} > {output.faa}")
+#         shell("cat {input.fna} > {output.fna}")
+#         header = next(open(input["gff"][0]))
+#         with open(output["gff"], "w") as handle_w:
+#             handle_w.write(header)
+#             for file in input["gff"]:
+#                 if os.stat(file).st_size > 0:
+#                     with open(file) as handle_r:
+#                         _ = next(handle_r)
+#                         handle_w.writelines(line for line in handle_r)
 
 # ================================================================== #
 #  ORIGINAL: SCG ANNOTATION  (COG-db path or CheckM HMM path)
@@ -293,20 +293,21 @@ if "cog_db" in ANNOTATION_CFG:
                 -evalue 0.00001 -query {input} -db {params.db} -out {output} &>{log}
         """
 
-    rule parse_cogs_annotation:
-        input:  Batch = expand("{{path}}/annotation/temp_splits/Batch_{nb}.cogs.tsv", nb=range(PRODIGAL_SPLIT))
-        output:
-            cog = "{path}/annotation/contigs_cogs_best_hits.tsv",
-            cat = temp("{path}/annotation/contigs_Cog.out"),
-        resources:
-            slurm_partition = get_resource("partition"),
-            mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/annacprice/pythonenv:3.9"
-        shell: """
-            cat {input} > {output.cat}
-            {SCRIPTS}/Filter_Cogs.py {output.cat} \
-                --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output.cog}
-        """
+    # rule parse_cogs_annotation — DISABLED: parse_scg_whole replaces the batch aggregation
+    # rule parse_cogs_annotation:
+    #     input:  Batch = expand("{{path}}/annotation/temp_splits/Batch_{nb}.cogs.tsv", nb=range(PRODIGAL_SPLIT))
+    #     output:
+    #         cog = "{path}/annotation/contigs_cogs_best_hits.tsv",
+    #         cat = temp("{path}/annotation/contigs_Cog.out"),
+    #     resources:
+    #         slurm_partition = get_resource("partition"),
+    #         mem_mb          = get_resource("mem"),
+    #     singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+    #     shell: """
+    #         cat {input} > {output.cat}
+    #         {SCRIPTS}/Filter_Cogs.py {output.cat} \
+    #             --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output.cog}
+    #     """
 
 else:
     rule hmmsearch:
@@ -328,20 +329,21 @@ else:
         fi
         """
 
-    rule parse_cogs_annotation:
-        input:  Batch = expand("{{path}}/temp_splits/Batch_{nb}_hmm.out", nb=range(PRODIGAL_SPLIT))
-        output:
-            cat = temp("{path}/contigs_hmm.out"),
-            cog = "{path}/contigs_cogs_best_hits.tsv",
-        resources:
-            slurm_partition = get_resource("partition"),
-            mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/annacprice/pythonenv:3.9"
-        shell: """
-            cat {input} > {output.cat}
-            {SCRIPTS}/Filter_scg_hmm.py {output.cat} \
-                --cog_hmm {SCG_DATA}/scg_hmm_selected.txt {output.cog}
-        """
+    # rule parse_cogs_annotation — DISABLED: parse_scg_whole replaces the batch aggregation
+    # rule parse_cogs_annotation:
+    #     input:  Batch = expand("{{path}}/temp_splits/Batch_{nb}_hmm.out", nb=range(PRODIGAL_SPLIT))
+    #     output:
+    #         cat = temp("{path}/contigs_hmm.out"),
+    #         cog = "{path}/contigs_cogs_best_hits.tsv",
+    #     resources:
+    #         slurm_partition = get_resource("partition"),
+    #         mem_mb          = get_resource("mem"),
+    #     singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+    #     shell: """
+    #         cat {input} > {output.cat}
+    #         {SCRIPTS}/Filter_scg_hmm.py {output.cat} \
+    #             --cog_hmm {SCG_DATA}/scg_hmm_selected.txt {output.cog}
+    #     """
 
 # ================================================================== #
 #  STEP 3 — PARSE SCG WHOLE  (single-file, for pyrodigal whole path)
@@ -590,35 +592,34 @@ if KO_HMM:
         """
 
 # ================================================================== #
-#  ORIGINAL: KOANNOTATION  (nested snakemake, kept for reference)
-#  Not used in the updated dependency chain — kofamscan_direct takes
-#  precedence via ruleorder. Kept so the file is a strict superset.
+#  ORIGINAL: KOANNOTATION — DISABLED
+#  Replaced by kofamscan_direct which runs directly on contigs.faa.
 # ================================================================== #
 
-if SMK_CONFIG:
-    THREADS_KO = 1
-else:
-    THREADS_KO = 32
-
-rule koannotation:
-    input:  expand("{{path}}/temp_splits/Batch_{nb}.faa", nb=range(PRODIGAL_SPLIT))
-    output: out = "{path}/contigs_KEGG_best_hits.tsv"
-    params:
-        root    = "{path}",
-        profile = f"--profile {SMK_CONFIG}" * (SMK_CONFIG != ""),
-    threads: THREADS_KO
-    resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
-    shell: """
-        snakemake -s {LONGFLOW_DIR}/snakenest/ko_annotation.snake \
-            {params.profile} -k --rerun-incomplete \
-            --directory {params.root} --cores {threads} --nolock \
-            --config scripts={SCRIPTS} ROOT={params.root} \
-                KO_HMM={KO_HMM} KO_HMM_CUTOFFS={KO_HMM_CUTOFFS} \
-                CONFIG_PATH={params.root}
-        rm -rf {params.root}/.snakemake
-    """
+# if SMK_CONFIG:
+#     THREADS_KO = 1
+# else:
+#     THREADS_KO = 32
+#
+# rule koannotation:
+#     input:  expand("{{path}}/temp_splits/Batch_{nb}.faa", nb=range(PRODIGAL_SPLIT))
+#     output: out = "{path}/contigs_KEGG_best_hits.tsv"
+#     params:
+#         root    = "{path}",
+#         profile = f"--profile {SMK_CONFIG}" * (SMK_CONFIG != ""),
+#     threads: THREADS_KO
+#     resources:
+#         slurm_partition = get_resource("partition"),
+#         mem_mb          = get_resource("mem"),
+#     shell: """
+#         snakemake -s {LONGFLOW_DIR}/snakenest/ko_annotation.snake \
+#             {params.profile} -k --rerun-incomplete \
+#             --directory {params.root} --cores {threads} --nolock \
+#             --config scripts={SCRIPTS} ROOT={params.root} \
+#                 KO_HMM={KO_HMM} KO_HMM_CUTOFFS={KO_HMM_CUTOFFS} \
+#                 CONFIG_PATH={params.root}
+#         rm -rf {params.root}/.snakemake
+#     """
 
 # ================================================================== #
 #  ORIGINAL: CAT TAXONOMY  (unchanged — still uses prodigal batches)
