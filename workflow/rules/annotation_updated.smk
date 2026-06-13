@@ -169,7 +169,6 @@ wildcard_constraints:
 #  Rule priority: new whole-fasta rules take precedence over
 #  the original batch-based rules where outputs overlap.
 # ------------------------------------------------------------------ #
-ruleorder: pyrodigal > cat_orfs
 
 # ================================================================== #
 #  TARGET RULE
