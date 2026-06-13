@@ -194,10 +194,11 @@ rule prepare_contigs:
     """Decompress the pre-computed assembly into the working tree."""
     input:  lambda w: ASSEMBLY_GZ[w.assembly]
     output: "{annot_dir}/{assembly}/contigs/contigs.fa"
+    log:    "{annot_dir}/{assembly}/contigs/contigs_prepare.log"
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    shell: "gunzip -c {input} > {output}"
+    shell: "gunzip -c {input} > {output} &>{log}"
 
 # ================================================================== #
 #  STEP 1 — PYRODIGAL  (whole-fasta, replaces split→prodigal→cat)
@@ -210,6 +211,7 @@ rule pyrodigal:
         faa = "{annot_dir}/{assembly}/annotation/contigs.faa",
         fna = "{annot_dir}/{assembly}/annotation/contigs.fna",
         gff = "{annot_dir}/{assembly}/annotation/contigs.gff",
+    log:    "{annot_dir}/{assembly}/annotation/contigs_pyrodigal.log"
     priority: 100
     threads: 32
     resources:
@@ -218,7 +220,7 @@ rule pyrodigal:
     singularity: SIF_PYRODIGAL
     shell: """
     pyrodigal-gv -i {input} -a {output.faa} -d {output.fna} \
-        -f gff -p meta -j {threads} -o {output.gff}
+        -f gff -p meta -j {threads} -o {output.gff} &>{log}
     """
 
 # ================================================================== #
@@ -229,12 +231,13 @@ rule pyrodigal:
 rule split_fasta:
     input:  "{annot_dir}/{assembly}/contigs/contigs.fa"
     output: expand("{{annot_dir}}/{{assembly}}/annotation/temp_splits/Batch_{nb}", nb=range(PRODIGAL_SPLIT))
+    log:    "{annot_dir}/{assembly}/annotation/contigs_split_fasta.log"
     params: tmp = "{annot_dir}/{assembly}/annotation/temp_splits"
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
     singularity: SIF_PYTHONENV
-    shell: "{SCRIPTS}/Split_Fasta.py {input} {PRODIGAL_SPLIT} -E -T {params.tmp}/Batch"
+    shell: "{SCRIPTS}/Split_Fasta.py {input} {PRODIGAL_SPLIT} -E -T {params.tmp}/Batch &>{log}"
 
 rule prodigal:
     input:  "{path}/temp_splits/Batch_{nb}"
@@ -242,6 +245,7 @@ rule prodigal:
         faa = "{path}/temp_splits/Batch_{nb}.faa",
         fna = "{path}/temp_splits/Batch_{nb}.fna",
         gff = "{path}/temp_splits/Batch_{nb}.gff",
+    log:    "{path}/temp_splits/Batch_{nb}_prodigal.log"
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
@@ -251,7 +255,7 @@ rule prodigal:
         prodigal-gv -i {input} -a {output.faa} -d {output.fna} -f gff -p meta -o {output.gff}
     else
         touch {output}
-    fi
+    fi &>{log}
     """
 
 # rule cat_orfs — DISABLED: pyrodigal produces contigs.faa/fna/gff directly
@@ -363,6 +367,7 @@ if "cog_db" in ANNOTATION_CFG:
     rule parse_scg_whole:
         input: "{path}/annotation/contigs.cogs.tsv"
         output: "{path}/annotation/contigs_cogs_best_hits.tsv"
+        log:    "{path}/annotation/contigs_parse_scg.log"
         priority: 80
         resources:
             slurm_partition = get_resource("partition"),
@@ -370,12 +375,13 @@ if "cog_db" in ANNOTATION_CFG:
         singularity: SIF_PYTHONENV
         shell: """
             {SCRIPTS}/Filter_Cogs.py {input} \
-                --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output}
+                --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output} &>{log}
         """
 else:
     rule parse_scg_whole:
         input: "{path}/annotation/contigs_hmm.out"
         output: "{path}/annotation/contigs_cogs_best_hits.tsv"
+        log:    "{path}/annotation/contigs_parse_scg.log"
         priority: 80
         resources:
             slurm_partition = get_resource("partition"),
@@ -383,7 +389,7 @@ else:
         singularity: SIF_PYTHONENV
         shell: """
             {SCRIPTS}/Filter_scg_hmm.py {input} \
-                --cog_hmm {SCG_DATA}/scg_hmm_selected.txt {output}
+                --cog_hmm {SCG_DATA}/scg_hmm_selected.txt {output} &>{log}
         """
 
 # ================================================================== #
@@ -396,18 +402,20 @@ rule extract_SCG_sequences:
         gff        = "{filename}.gff",
         fna        = "{filename}.fna",
     output: "{filename}_SCG.fna"
+    log:    "{filename}_SCG_extract.log"
     resources:
         slurm_partition = get_resource("partition", min_size=150000),
         mem_mb          = get_resource("mem", min_size=150000),
     shell: """
         {SCRIPTS}/Extract_SCG.py {input.fna} {input.annotation} \
             {SCG_DATA}/scg_cogs_min0.97_max1.03_unique_genera.txt \
-            {input.gff} > {output}
+            {input.gff} > {output} &>{log}
     """
 
 rule cluster_SCG:
     input:  "{path}/contigs_SCG.fna"
     output: "{path}/contigs_{pid}_mmseqs_cluster.tsv"
+    log:    "{path}/contigs_{pid}_cluster_scg.log"
     params:
         tmp = "{path}/mmseq_tmp_{pid}",
         out = "{path}/contigs_{pid}_mmseqs",
@@ -421,7 +429,7 @@ rule cluster_SCG:
     shell: """
         mmseqs easy-cluster {input} {params.out} {params.tmp} \
             --min-seq-id {wildcards.pid} -c 0.8 \
-            --cov-mode 1 --alignment-mode 3 --threads {threads}
+            --cov-mode 1 --alignment-mode 3 --threads {threads} &>{log}
     """
 
 rule scg_cluster_def:
@@ -445,6 +453,7 @@ rule scg_cluster_def:
 rule cluster_ORF:
     input:  "{path}/contigs.fna"
     output: "{path}/contigs_orfs_{pid}_mmseqs_cluster.tsv"
+    log:    "{path}/contigs_orfs_{pid}_cluster_orf.log"
     params:
         tmp = "{path}/mmseq_tmp_orfs_{pid}",
         out = "{path}/contigs_orfs_{pid}_mmseqs",
@@ -456,7 +465,7 @@ rule cluster_ORF:
     shell: """
         mmseqs easy-cluster {input} {params.out} {params.tmp} \
             --min-seq-id {wildcards.pid} -c 0.8 \
-            --cov-mode 1 --alignment-mode 3 --threads {threads}
+            --cov-mode 1 --alignment-mode 3 --threads {threads} &>{log}
     """
 
 # ================================================================== #
@@ -466,10 +475,11 @@ rule cluster_ORF:
 rule bogus_bed:
     input:  "{path}/contigs/contigs.fa"
     output: temp("{path}/annotation/contigs.bedtemp")
+    log:    "{path}/annotation/contigs_bogus_bed.log"
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    shell: "{SCRIPTS}/bogus_bed.py -i {input} -o {output}"
+    shell: "{SCRIPTS}/bogus_bed.py -i {input} -o {output} &>{log}"
 
 rule sort_bed:
     input:
@@ -478,10 +488,11 @@ rule sort_bed:
     output:
         bed   = "{path}/annotation/{type}.bed",
         gfile = "{path}/annotation/{type}_bedtools_target_definition.tsv",
+    log:    "{path}/annotation/{type}_sort_bed.log"
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    shell: "{SCRIPTS}/sort_bed.py {input.bed} {input.cont} {output.bed} -g {output.gfile}"
+    shell: "{SCRIPTS}/sort_bed.py {input.bed} {input.cont} {output.bed} -g {output.gfile} &>{log}"
 
 rule get_component_quality:
     input:
@@ -554,6 +565,7 @@ rule diamond:
 rule annotation_diamond:
     input:   "{path}/annotation/{filename}_{annotation}.m8"
     output:  "{path}/annotation/{filename}_{annotation}_best_hits.tsv"
+    log:     "{path}/annotation/{filename}_{annotation}_annotation_diamond.log"
     params:
         annotation  = lambda w: DIAMOND[w.annotation]["annotation"],
         Bitscore    = lambda w: DIAMOND[w.annotation]["filter"][0],
@@ -570,7 +582,7 @@ rule annotation_diamond:
             -D {params.annotation} \
             -B {params.Bitscore} -E {params.Evalue} -P {params.PID} \
             -R {params.subject_pid} -C {params.subject_cov} -Q {params.query_cov} \
-            > {output}
+            > {output} &>{log}
     """
 
 # ================================================================== #
@@ -639,6 +651,7 @@ if KO_HMM:
         """hmmsearch against KO HMM profiles on whole contigs.faa."""
         input:  faa = "{path}/annotation/contigs.faa"
         output: domtbl = "{path}/annotation/contigs_ko.out"
+        log:    "{path}/annotation/contigs_kofamscan.log"
         priority: 90
         threads: 32
         resources:
@@ -651,7 +664,7 @@ if KO_HMM:
                 --domtblout {output.domtbl} {KO_HMM} {input.faa}
         else
             touch {output.domtbl}
-        fi
+        fi &>{log}
         """
 
     localrules: kofamscan_parse
@@ -715,6 +728,7 @@ if CAT_DB:
             faa     = "{path}/annotation/temp_splits/Batch_{nb}.faa",
             db      = glob.glob(f"{CAT_DB}/db/*.dmnd"),
         output: ORF2LCA = "{path}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt"
+        log:    "{path}/annotation/temp_splits/Batch_{nb}_CAT.log"
         params: Dir = "{path}/annotation/temp_splits/Batch_{nb}_contigs"
         threads: 32
         resources:
@@ -729,16 +743,17 @@ if CAT_DB:
                 --path_to_diamond /hpc-home/kar23heg/bin/diamond
         else
             touch {output}
-        fi
+        fi &>{log}
         """
 
     rule CAT_ORF_annotation:
         input:  expand("{{path}}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt", nb=range(PRODIGAL_SPLIT))
         output: "{path}/annotation/CAT_contigs_taxonomy.tsv"
+        log:    "{path}/annotation/CAT_ORF_annotation.log"
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
-        shell: "cat {input} > {output}"
+        shell: "cat {input} > {output} &>{log}"
 
 # ================================================================== #
 #  ORIGINAL: 16S / BLCA  (unchanged)
@@ -747,12 +762,13 @@ if CAT_DB:
 rule identify_rRNA:
     input:  "{path}/contigs/contigs.fa"
     output: "{path}/annotation/barrnap_rrna.gff3"
+    log:    "{path}/annotation/barrnap.log"
     threads: 32
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
     singularity: SIF_BARRNAP
-    shell: "barrnap --threads {threads} {input} > {output}"
+    shell: "barrnap --threads {threads} {input} > {output} &>{log}"
 
 localrules: extract_rna_seq
 
@@ -783,6 +799,7 @@ rule extract_rna_seq:
 rule BLCA:
     input:  contigs = "{path}/annotation/16S_seqs.fa"
     output: "{path}/annotation/16S_blca.tsv"
+    log:    "{path}/annotation/16S_blca.log"
     threads: 64
     params:
         db   = BLCA["db"],
@@ -799,7 +816,7 @@ rule BLCA:
         python {params.path}/2.blca_main.py \
             -i {input.contigs} -p {threads} -n 50 \
             -a muscle -o {output} \
-            -r {params.taxa} -q {params.db}
+            -r {params.taxa} -q {params.db} &>{log}
     """
 
 # ================================================================== #
@@ -812,6 +829,7 @@ if SIF_FETCHMGS:
             faa = "{path}/annotation/contigs.faa",
             fna = "{path}/annotation/contigs.fna",
         output: done = "{path}/annotation/fetchMGs.done"
+        log:    "{path}/annotation/fetchMGs.log"
         priority: 80
         params: outdir = "{path}/annotation/fetchMGs_out"
         threads: 25
@@ -823,7 +841,7 @@ if SIF_FETCHMGS:
             rm -rf {params.outdir} && mkdir -p {params.outdir}
             fetchMGs extraction {input.faa} gene {params.outdir} \
                 -d {input.fna} -t {threads}
-            touch {output.done}
+            touch {output.done} &>{log}
         """
 
 # ================================================================== #
@@ -836,6 +854,7 @@ if GENOMAD_DB:
             contigs = "{path}/contigs/contigs.fa",
             DB      = GENOMAD_DB,
         output: "{path}/annotation/genomad/genomad.done"
+        log:    "{path}/annotation/genomad/genomad.log"
         params: output = "{path}/annotation/genomad"
         threads: 25
         resources:
@@ -845,5 +864,5 @@ if GENOMAD_DB:
         shell: """
             genomad end-to-end --cleanup --splits {threads} \
                 {input.contigs} {params.output} {GENOMAD_DB} \
-                && touch {output}
+                && touch {output} &>{log}
         """
