@@ -106,8 +106,16 @@ IP_DB           = ANNOTATION_CFG.get("ip_db", "")
 CHECKM2_DB      = ANNOTATION_CFG.get("checkm2", "")
 
 _SIF_CACHE    = "/ei/.project-scratch/5/542de014-1e71-4955-945a-5d2ab09567a7/data/CEH_soil_project/decode_lr/singularity_cache"
-SIF_PYRODIGAL = ANNOTATION_CFG.get("sif_pyrodigal", f"{_SIF_CACHE}/pyrodigalgv_0.3.2.sif")
-SIF_FETCHMGS  = ANNOTATION_CFG.get("sif_fetchmgs",  f"{_SIF_CACHE}/fetchmgs.sif")
+SIF_PYRODIGAL  = ANNOTATION_CFG.get("sif_pyrodigal",  f"{_SIF_CACHE}/pyrodigalgv_0.3.2.sif")
+SIF_FETCHMGS   = ANNOTATION_CFG.get("sif_fetchmgs",   f"{_SIF_CACHE}/fetchmgs.sif")
+SIF_PYTHONENV  = ANNOTATION_CFG.get("sif_pythonenv",  f"{_SIF_CACHE}/pythonenv_3.9.sif")
+SIF_PRODIGAL   = ANNOTATION_CFG.get("sif_prodigal",   f"{_SIF_CACHE}/prodigal-gv_2.11.0.sif")
+SIF_GTDBTK     = ANNOTATION_CFG.get("sif_gtdbtk",     f"{_SIF_CACHE}/gtdbtk_1.4.0.sif")
+SIF_BARRNAP    = ANNOTATION_CFG.get("sif_barrnap",    f"{_SIF_CACHE}/barrnap_0.9.sif")
+SIF_BLAST      = ANNOTATION_CFG.get("sif_blast",      f"{_SIF_CACHE}/blast_2.16.0.sif")
+SIF_DIAMOND    = ANNOTATION_CFG.get("sif_diamond",    f"{_SIF_CACHE}/diamond_2.0.9.sif")
+SIF_MMSEQS2    = ANNOTATION_CFG.get("sif_mmseqs2",    f"{_SIF_CACHE}/mmseqs2_latest.sif")
+SIF_GENOMAD    = ANNOTATION_CFG.get("sif_genomad",    f"{_SIF_CACHE}/genomad_1.8.0.sif")
 
 # SCG detection: use cog_db if present, else checkm HMM
 if "cog_db" in ANNOTATION_CFG:
@@ -225,7 +233,7 @@ rule split_fasta:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+    singularity: SIF_PYTHONENV
     shell: "{SCRIPTS}/Split_Fasta.py {input} {PRODIGAL_SPLIT} -E -T {params.tmp}/Batch"
 
 rule prodigal:
@@ -237,7 +245,7 @@ rule prodigal:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    singularity: "docker://quay.io/biocontainers/prodigal-gv:2.11.0--h577a1d6_5"
+    singularity: SIF_PRODIGAL
     shell: """
     if [ -s {input} ]; then
         prodigal-gv -i {input} -a {output.faa} -d {output.fna} -f gff -p meta -o {output.gff}
@@ -286,7 +294,7 @@ if "cog_db" in ANNOTATION_CFG:
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/biocontainers/blast:2.16.0--hc155240_2"
+        singularity: SIF_BLAST
         shell: """
             rpsblast -outfmt '6 qseqid sseqid evalue pident length slen qlen' \
                 -evalue 0.00001 -query {input} -db {params.db} -out {output} &>{log}
@@ -301,7 +309,7 @@ if "cog_db" in ANNOTATION_CFG:
     #     resources:
     #         slurm_partition = get_resource("partition"),
     #         mem_mb          = get_resource("mem"),
-    #     singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+    #     singularity: SIF_PYTHONENV
     #     shell: """
     #         cat {input} > {output.cat}
     #         {SCRIPTS}/Filter_Cogs.py {output.cat} \
@@ -318,7 +326,7 @@ else:
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/annacprice/gtdbtk:1.4.0"
+        singularity: SIF_GTDBTK
         shell: """
         if [ ! -s {input.faa} ]; then
             touch {output}
@@ -337,7 +345,7 @@ else:
     #     resources:
     #         slurm_partition = get_resource("partition"),
     #         mem_mb          = get_resource("mem"),
-    #     singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+    #     singularity: SIF_PYTHONENV
     #     shell: """
     #         cat {input} > {output.cat}
     #         {SCRIPTS}/Filter_scg_hmm.py {output.cat} \
@@ -359,7 +367,7 @@ if "cog_db" in ANNOTATION_CFG:
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+        singularity: SIF_PYTHONENV
         shell: """
             {SCRIPTS}/Filter_Cogs.py {input} \
                 --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output}
@@ -372,7 +380,7 @@ else:
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
-        singularity: "docker://quay.io/annacprice/pythonenv:3.9"
+        singularity: SIF_PYTHONENV
         shell: """
             {SCRIPTS}/Filter_scg_hmm.py {input} \
                 --cog_hmm {SCG_DATA}/scg_hmm_selected.txt {output}
@@ -409,7 +417,7 @@ rule cluster_SCG:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    singularity: "docker://soedinglab/mmseqs2:latest"
+    singularity: SIF_MMSEQS2
     shell: """
         mmseqs easy-cluster {input} {params.out} {params.tmp} \
             --min-seq-id {wildcards.pid} -c 0.8 \
@@ -444,7 +452,7 @@ rule cluster_ORF:
     resources:
         slurm_partition = get_resource("partition", mult=8),
         mem_mb          = get_resource("mem", mult=8),
-    singularity: "docker://soedinglab/mmseqs2:latest"
+    singularity: SIF_MMSEQS2
     shell: """
         mmseqs easy-cluster {input} {params.out} {params.tmp} \
             --min-seq-id {wildcards.pid} -c 0.8 \
@@ -535,7 +543,7 @@ rule diamond:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    singularity: "docker://nanozoo/diamond:2.0.9--3b48005"
+    singularity: SIF_DIAMOND
     shell: """
         diamond blastp --more-sensitive \
             -d {params.db} -q {input} -p {threads} -o {output} \
@@ -667,7 +675,7 @@ rule identify_rRNA:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    singularity: "docker://quay.io/biocontainers/barrnap:0.9--3"
+    singularity: SIF_BARRNAP
     shell: "barrnap --threads {threads} {input} > {output}"
 
 localrules: extract_rna_seq
@@ -755,7 +763,7 @@ if GENOMAD_DB:
         resources:
             slurm_partition = get_resource("partition", min_size=80000),
             mem_mb          = get_resource("mem", min_size=80000),
-        singularity: "docker://quay.io/biocontainers/genomad:1.8.0--pyhdfd78af_0"
+        singularity: SIF_GENOMAD
         shell: """
             genomad end-to-end --cleanup --splits {threads} \
                 {input.contigs} {params.output} {GENOMAD_DB} \
