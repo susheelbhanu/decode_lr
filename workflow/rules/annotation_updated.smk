@@ -574,29 +574,105 @@ rule annotation_diamond:
     """
 
 # ================================================================== #
-#  STEP 2 — KOFAMSCAN DIRECT  (runs on whole contigs.faa from pyrodigal)
-#  ruleorder above ensures this fires instead of koannotation.
+#  STEP 2 — KO ANNOTATION  (hmmsearch against KO profiles, whole faa)
+#  Mirrors ko_annotation.snake logic but on whole contigs.faa.
+#  Two rules: hmmsearch (cluster job) → parse (local Python run:).
 # ================================================================== #
+
+# Parse per-KO bitscore/domain cutoffs from the ko_list file
+def _parse_ko_cutoffs(ko_list_path):
+    cutoffs = {}
+    with open(ko_list_path) as fh:
+        _ = fh.readline()
+        for line in fh:
+            parts = line.strip().split("\t")
+            if parts[1] == "-":
+                cutoffs[parts[0]] = [0.0, "NA"]
+            else:
+                cutoffs[parts[0]] = [float(parts[1]), parts[2]]
+    return cutoffs
+
+def _parse_ko_domtblout(path, ko_cutoffs, evalue_cutoff=1e-5):
+    from collections import defaultdict
+    hits = defaultdict(list)
+    for line in open(path):
+        if line.startswith("#"):
+            continue
+        cols = line.strip().split()[:22]
+        if len(cols) < 22:
+            continue
+        seqname, _, tlen, ko_hmm, _, qlen, _, score, \
+        _, _, _, _, i_evalue, dom_score, _, _, \
+        _, seq_from, seq_to, _, _, _ = cols
+        tlen, qlen = int(tlen), int(qlen)
+        span = range(int(seq_from), int(seq_to))
+        if ko_hmm in ko_cutoffs:
+            mode = ko_cutoffs[ko_hmm][1]
+            threshold = ko_cutoffs[ko_hmm][0]
+            if mode == "full" and float(score) < threshold:
+                continue
+            elif mode == "domain" and float(dom_score) < threshold:
+                continue
+        if float(i_evalue) > evalue_cutoff:
+            continue
+        hits[seqname].append((ko_hmm, float(i_evalue), span))
+    # keep best non-overlapping hit per orf
+    result = {}
+    for orf, annots in hits.items():
+        if len(annots) == 1:
+            result[orf] = [annots[0][0]]
+            continue
+        annots_sorted = sorted(annots, key=lambda x: x[1])
+        chosen, excluded = [], set()
+        for ko, ev, rng in annots_sorted:
+            if ko in excluded:
+                continue
+            chosen.append(ko)
+            for ko2, ev2, rng2 in annots_sorted:
+                if set(rng).intersection(rng2):
+                    excluded.add(ko2)
+        result[orf] = chosen
+    return result
 
 if KO_HMM:
     rule kofamscan_direct:
-        input:  "{path}/annotation/contigs.faa"
-        output: "{path}/annotation/contigs_KEGG_best_hits.tsv"
+        """hmmsearch against KO HMM profiles on whole contigs.faa."""
+        input:  faa = "{path}/annotation/contigs.faa"
+        output: domtbl = "{path}/annotation/contigs_ko.out"
         priority: 90
         threads: 32
-        params: tmp = "{path}/annotation/kofamscan_tmp"
         resources:
-            slurm_partition = get_resource("partition"),
-            mem_mb          = get_resource("mem"),
+            slurm_partition = get_resource("partition", min_size=150000),
+            mem_mb          = get_resource("mem", min_size=150000),
+        singularity: SIF_GTDBTK
         shell: """
-            exec_annotation \
-                -p {KO_HMM} -k {KO_HMM_CUTOFFS} \
-                --cpu {threads} \
-                --tmp-dir {params.tmp} \
-                -f detail-tsv \
-                -o {output} \
-                {input}
+        if [ -s {input.faa} ]; then
+            hmmsearch --cpu {threads} -o /dev/null --noali \
+                --domtblout {output.domtbl} {KO_HMM} {input.faa}
+        else
+            touch {output.domtbl}
+        fi
         """
+
+    localrules: kofamscan_parse
+    rule kofamscan_parse:
+        """Parse KO domtblout → contigs_KEGG_best_hits.tsv."""
+        input:  domtbl = "{path}/annotation/contigs_ko.out"
+        output: tsv    = "{path}/annotation/contigs_KEGG_best_hits.tsv"
+        priority: 90
+        run:
+            ko_cutoffs = _parse_ko_cutoffs(KO_HMM_CUTOFFS)
+            ko_to_def  = {
+                line.rstrip().split("\t")[0]: line.rstrip().split("\t")[-1]
+                for line in open(KO_HMM_CUTOFFS)
+                if not line.startswith("knum")
+            }
+            orf_to_kos = _parse_ko_domtblout(input.domtbl, ko_cutoffs)
+            with open(output.tsv, "w") as fh:
+                fh.write("orf\tKO\tKO definition\n")
+                for orf, kos in orf_to_kos.items():
+                    for ko in kos:
+                        fh.write(f"{orf}\t{ko}\t{ko_to_def.get(ko, '')}\n")
 
 # ================================================================== #
 #  ORIGINAL: KOANNOTATION — DISABLED
