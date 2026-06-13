@@ -213,8 +213,8 @@ rule pyrodigal:
     priority: 100
     threads: 32
     resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
+        slurm_partition = get_resource("partition", min_size=150000),
+        mem_mb          = get_resource("mem", min_size=150000),
     singularity: SIF_PYRODIGAL
     shell: """
     pyrodigal-gv -i {input} -a {output.faa} -d {output.fna} \
@@ -324,8 +324,8 @@ else:
         output: "{path}_hmm.out"
         log:    "{path}_hmm.log"
         resources:
-            slurm_partition = get_resource("partition"),
-            mem_mb          = get_resource("mem"),
+            slurm_partition = get_resource("partition", min_size=150000),
+            mem_mb          = get_resource("mem", min_size=150000),
         singularity: SIF_GTDBTK
         shell: """
         if [ ! -s {input.faa} ]; then
@@ -397,8 +397,8 @@ rule extract_SCG_sequences:
         fna        = "{filename}.fna",
     output: "{filename}_SCG.fna"
     resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
+        slurm_partition = get_resource("partition", min_size=150000),
+        mem_mb          = get_resource("mem", min_size=150000),
     shell: """
         {SCRIPTS}/Extract_SCG.py {input.fna} {input.annotation} \
             {SCG_DATA}/scg_cogs_min0.97_max1.03_unique_genera.txt \
@@ -642,8 +642,8 @@ if CAT_DB:
         params: Dir = "{path}/annotation/temp_splits/Batch_{nb}_contigs"
         threads: 32
         resources:
-            slurm_partition = get_resource("partition", mult=3),
-            mem_mb          = get_resource("mem", mult=3),
+            slurm_partition = get_resource("partition", mult=3, min_size=150000),
+            mem_mb          = get_resource("mem", mult=3, min_size=150000),
         shell: """
         if [ -s {input.contigs} ]; then
             {CAT_PATH}/CAT_pack contigs \
@@ -713,8 +713,8 @@ rule BLCA:
         taxa = BLCA["taxa"],
         path = BLCA["bin"],
     resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
+        slurm_partition = get_resource("partition", min_size=150000),
+        mem_mb          = get_resource("mem", min_size=150000),
     shell: """
         module load clustalo/1.2.4
         module load blast+/2.16.0
@@ -761,8 +761,8 @@ if GENOMAD_DB:
         params: output = "{path}/annotation/genomad"
         threads: 25
         resources:
-            slurm_partition = get_resource("partition", min_size=80000),
-            mem_mb          = get_resource("mem", min_size=80000),
+            slurm_partition = get_resource("partition", min_size=150000),
+            mem_mb          = get_resource("mem", min_size=150000),
         singularity: SIF_GENOMAD
         shell: """
             genomad end-to-end --cleanup --splits {threads} \
