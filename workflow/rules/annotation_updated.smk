@@ -204,6 +204,7 @@ rule pyrodigal:
         faa = "{annot_dir}/{assembly}/annotation/contigs.faa",
         fna = "{annot_dir}/{assembly}/annotation/contigs.fna",
         gff = "{annot_dir}/{assembly}/annotation/contigs.gff",
+    priority: 100
     threads: 32
     resources:
         slurm_partition = get_resource("partition"),
@@ -353,6 +354,7 @@ if "cog_db" in ANNOTATION_CFG:
     rule parse_scg_whole:
         input: "{path}/annotation/contigs.cogs.tsv"
         output: "{path}/annotation/contigs_cogs_best_hits.tsv"
+        priority: 80
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
@@ -365,6 +367,7 @@ else:
     rule parse_scg_whole:
         input: "{path}/annotation/contigs_hmm.out"
         output: "{path}/annotation/contigs_cogs_best_hits.tsv"
+        priority: 80
         resources:
             slurm_partition = get_resource("partition"),
             mem_mb          = get_resource("mem"),
@@ -570,6 +573,7 @@ if KO_HMM:
     rule kofamscan_direct:
         input:  "{path}/annotation/contigs.faa"
         output: "{path}/annotation/contigs_KEGG_best_hits.tsv"
+        priority: 90
         threads: 32
         params: tmp = "{path}/annotation/kofamscan_tmp"
         resources:
@@ -722,6 +726,7 @@ if SIF_FETCHMGS:
             faa = "{path}/annotation/contigs.faa",
             fna = "{path}/annotation/contigs.fna",
         output: done = "{path}/annotation/fetchMGs.done"
+        priority: 80
         params: outdir = "{path}/annotation/fetchMGs_out"
         threads: 25
         resources:
