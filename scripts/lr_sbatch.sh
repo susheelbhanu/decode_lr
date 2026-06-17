@@ -4,7 +4,7 @@
 # SLURM
 # NOTE: used for this script only, NOT for the snakemake call below
 
-#SBATCH -J LR_decode
+#SBATCH -J annotation_decode
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 1
@@ -22,7 +22,7 @@ SMK_ENV="snakemake" # USER INPUT REQUIRED
 # number of jobs for snakemake
 SMK_JOBS=16
 # snakemake file
-SMK_SMK="workflow/Snakefile_annotation"
+SMK_SMK="workflow/Snakefile_annotation_updated"
 # config file
 SMK_CONFIG="config/lr_config.yaml" # USER INPUT REQUIRED
 # slurm config file

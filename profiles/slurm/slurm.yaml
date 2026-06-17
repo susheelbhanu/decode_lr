@@ -14,18 +14,31 @@ short_preproc:
 
 metamdbg_hifi_individual:
   time: "7-00:00:00"
+  partition: "ei-largemem"
+  mem: "750000"
 
 metamdbg_hifi_coassembly_rhizo:
   time: "30-00:00:00"
+  partition: "ei-largemem"
+  mem: "1000000"
 
 metamdbg_hifi_coassembly_bulk:
   time: "30-00:00:00"
+  partition: "ei-largemem"
+  mem: "1000000"
 
 metamdbg_ont_individual:
   time: "7-00:00:00"
+  partition: "ei-largemem"
+  mem: "750000"
 
 metamdbg_hybrid_b26:
   time: "14-00:00:00"
+  partition: "ei-largemem"
+  mem: "1000000"
 
 metamdbg_hybrid_coassembly_bulk:
   time: "21-00:00:00"
+  partition: "ei-largemem"
+  mem: "1000000"
+

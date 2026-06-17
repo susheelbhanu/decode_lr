@@ -43,22 +43,22 @@ cat_orfs:
 
 # ── Step 2: KO annotation ─────────────────────────────────────────────
 kofamscan_direct:
-  time: "4-00:00:00"
+  time: "7-00:00:00"
   partition: "ei-long"
 
 # Original nested-snakemake KO (kept, not used in updated chain)
 koannotation:
-  time: "4-00:00:00"
+  time: "7-00:00:00"
   partition: "ei-long"
 
 # ── Step 3: SCG detection ─────────────────────────────────────────────
 hmmsearch:
-  time: "2-00:00:00"
+  time: "5-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
 
 Batch_rpsblast:
-  time: "2-00:00:00"
+  time: "4-00:00:00"
   partition: "ei-medium"
 
 parse_scg_whole:
@@ -105,16 +105,16 @@ get_component_quality:
 
 # ── Diamond annotation ────────────────────────────────────────────────
 diamond:
-  time: "2-00:00:00"
+  time: "3-00:00:00"
   partition: "ei-medium"
 
 annotation_diamond:
-  time: "2-00:00:00"
+  time: "3-00:00:00"
   partition: "ei-medium"
 
 # ── CAT taxonomy (still uses prodigal batches) ────────────────────────
 CAT_annotation:
-  time: "3-00:00:00"
+  time: "7-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
 
@@ -124,18 +124,18 @@ CAT_ORF_annotation:
 
 # ── 16S / BLCA ────────────────────────────────────────────────────────
 identify_rRNA:
-  time: "2-00:00:00"
+  time: "7-00:00:00"
   partition: "ei-medium"
 
 BLCA:
-  time: "5-00:00:00"
+  time: "14-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
   cpus-per-task: 64
 
 # ── Step 4: geNomad ──────────────────────────────────────────────────
 genomad:
-  time: "5-00:00:00"
+  time: "7-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
 
@@ -156,7 +156,7 @@ orf_prodigal_gv_chunk:
   qos: "normal"
 
 orf_pyrodigal_gv_whole:
-  time: "1-00:00:00"
+  time: "2-00:00:00"
   partition: "ei-long"
   qos: "normal"
 
@@ -176,7 +176,7 @@ cat_pyrodigal_gv:
   qos: "normal"
 
 scg_search:
-  time: "3-00:00:00"
+  time: "10-00:00:00"
   partition: "ei-long"
   qos: "normal"
 
@@ -186,11 +186,11 @@ scg_parse:
   qos: "normal"
 
 extract_scg:
-  time: "3-00:00:00"
+  time: "10-00:00:00"
   partition: "ei-long"
   qos: "normal"
 
 fetchmg:
-  time: "1-00:00:00"
+  time: "2-00:00:00"
   partition: "ei-long"
   qos: "normal"

@@ -7,10 +7,10 @@
 set -euo pipefail
 
 # Base directory containing assemblies
-base="/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results/assemblies"
+base="/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results_20260202/assemblies" # old-assemblies: /ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results/assemblies"
 
 # Output summary file
-out="metaMDBG_assembly_summary.tsv"
+out="/ei/projects/5/542de014-1e71-4955-945a-5d2ab09567a7/CEH_soil_project/lr_results_20260202/assemblies/metaMDBG_assembly_summary.tsv"
 
 # Write header
 echo -e "sample\tassembly_length\tcontigs_n50\tnb_contigs\tnb_contigs_gt1mb\tnb_circular_contigs_gt1mb" > "$out"

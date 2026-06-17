@@ -49,4 +49,4 @@ conda activate ${SMK_ENV}
 # snakemake --profile "${SMK_PROFILE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk -n
 
 snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk --unlock
-snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk 
+snakemake -s "${SMK_SMK}" --profile "${SMK_PROFILE}" --singularity-prefix "${SMK_SIF_CACHE}" --jobs "${SMK_JOBS}" --rerun-incomplete -rpk
