@@ -112,15 +112,11 @@ annotation_diamond:
   time: "3-00:00:00"
   partition: "ei-medium"
 
-# ── CAT taxonomy (still uses prodigal batches) ────────────────────────
+# ── CAT taxonomy (whole-fasta, uses pyrodigal contigs.faa) ───────────
 CAT_annotation:
   time: "7-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
-
-CAT_ORF_annotation:
-  time: "0-01:00:00"
-  partition: "ei-medium"
 
 # ── 16S / BLCA ────────────────────────────────────────────────────────
 identify_rRNA:

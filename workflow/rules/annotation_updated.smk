@@ -228,35 +228,37 @@ rule pyrodigal:
 #  Kept as-is — still used by CAT_annotation (needs nucleotide batches)
 # ================================================================== #
 
-rule split_fasta:
-    input:  "{annot_dir}/{assembly}/contigs/contigs.fa"
-    output: expand("{{annot_dir}}/{{assembly}}/annotation/temp_splits/Batch_{nb}", nb=range(PRODIGAL_SPLIT))
-    log:    "{annot_dir}/{assembly}/annotation/contigs_split_fasta.log"
-    params: tmp = "{annot_dir}/{assembly}/annotation/temp_splits"
-    resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
-    singularity: SIF_PYTHONENV
-    shell: "{SCRIPTS}/Split_Fasta.py {input} {PRODIGAL_SPLIT} -E -T {params.tmp}/Batch &>{log}"
+# rule split_fasta — DISABLED: pyrodigal replaces the split→prodigal batch chain
+# rule split_fasta:
+#     input:  "{annot_dir}/{assembly}/contigs/contigs.fa"
+#     output: expand("{{annot_dir}}/{{assembly}}/annotation/temp_splits/Batch_{nb}", nb=range(PRODIGAL_SPLIT))
+#     log:    "{annot_dir}/{assembly}/annotation/contigs_split_fasta.log"
+#     params: tmp = "{annot_dir}/{assembly}/annotation/temp_splits"
+#     resources:
+#         slurm_partition = get_resource("partition"),
+#         mem_mb          = get_resource("mem"),
+#     singularity: SIF_PYTHONENV
+#     shell: "{SCRIPTS}/Split_Fasta.py {input} {PRODIGAL_SPLIT} -E -T {params.tmp}/Batch &>{log}"
 
-rule prodigal:
-    input:  "{path}/temp_splits/Batch_{nb}"
-    output:
-        faa = "{path}/temp_splits/Batch_{nb}.faa",
-        fna = "{path}/temp_splits/Batch_{nb}.fna",
-        gff = "{path}/temp_splits/Batch_{nb}.gff",
-    log:    "{path}/temp_splits/Batch_{nb}_prodigal.log"
-    resources:
-        slurm_partition = get_resource("partition"),
-        mem_mb          = get_resource("mem"),
-    singularity: SIF_PRODIGAL
-    shell: """
-    if [ -s {input} ]; then
-        prodigal-gv -i {input} -a {output.faa} -d {output.fna} -f gff -p meta -o {output.gff}
-    else
-        touch {output}
-    fi &>{log}
-    """
+# rule prodigal — DISABLED: pyrodigal replaces the split→prodigal batch chain
+# rule prodigal:
+#     input:  "{path}/temp_splits/Batch_{nb}"
+#     output:
+#         faa = "{path}/temp_splits/Batch_{nb}.faa",
+#         fna = "{path}/temp_splits/Batch_{nb}.fna",
+#         gff = "{path}/temp_splits/Batch_{nb}.gff",
+#     log:    "{path}/temp_splits/Batch_{nb}_prodigal.log"
+#     resources:
+#         slurm_partition = get_resource("partition"),
+#         mem_mb          = get_resource("mem"),
+#     singularity: SIF_PRODIGAL
+#     shell: """
+#     if [ -s {input} ]; then
+#         prodigal-gv -i {input} -a {output.faa} -d {output.fna} -f gff -p meta -o {output.gff}
+#     else
+#         touch {output}
+#     fi &>{log}
+#     """
 
 # rule cat_orfs — DISABLED: pyrodigal produces contigs.faa/fna/gff directly
 # rule cat_orfs:
@@ -718,42 +720,40 @@ if KO_HMM:
 #     """
 
 # ================================================================== #
-#  ORIGINAL: CAT TAXONOMY  (unchanged — still uses prodigal batches)
+#  CAT TAXONOMY — whole-fasta (uses pyrodigal contigs.faa directly)
 # ================================================================== #
 
 if CAT_DB:
     rule CAT_annotation:
         input:
-            contigs = "{path}/annotation/temp_splits/Batch_{nb}",
-            faa     = "{path}/annotation/temp_splits/Batch_{nb}.faa",
+            contigs = "{path}/contigs/contigs.fa",
+            faa     = "{path}/annotation/contigs.faa",
             db      = glob.glob(f"{CAT_DB}/db/*.dmnd"),
-        output: ORF2LCA = "{path}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt"
-        log:    "{path}/annotation/temp_splits/Batch_{nb}_CAT.log"
-        params: Dir = "{path}/annotation/temp_splits/Batch_{nb}_contigs"
+        output: "{path}/annotation/CAT_contigs_taxonomy.tsv"
+        log:    "{path}/annotation/CAT_annotation.log"
+        params: prefix = "{path}/annotation/CAT_contigs"
         threads: 32
         resources:
             slurm_partition = get_resource("partition", mult=3, min_size=150000),
             mem_mb          = get_resource("mem", mult=3, min_size=150000),
         shell: """
-        if [ -s {input.contigs} ]; then
             {CAT_PATH}/CAT_pack contigs \
                 -c {input.contigs} -d {CAT_DB}/db -t {CAT_DB}/tax \
-                -p {input.faa} -n {threads} --out_prefix {params.Dir} \
+                -p {input.faa} -n {threads} --out_prefix {params.prefix} \
                 --top 11 --I_know_what_Im_doing --force \
-                --path_to_diamond /hpc-home/kar23heg/bin/diamond
-        else
-            touch {output}
-        fi &>{log}
+                --path_to_diamond /hpc-home/kar23heg/bin/diamond && \
+            mv {params.prefix}.contig2classification.txt {output} &>{log}
         """
 
-    rule CAT_ORF_annotation:
-        input:  expand("{{path}}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt", nb=range(PRODIGAL_SPLIT))
-        output: "{path}/annotation/CAT_contigs_taxonomy.tsv"
-        log:    "{path}/annotation/CAT_ORF_annotation.log"
-        resources:
-            slurm_partition = get_resource("partition"),
-            mem_mb          = get_resource("mem"),
-        shell: "cat {input} > {output} &>{log}"
+    # rule CAT_ORF_annotation — DISABLED: replaced by whole-fasta CAT_annotation
+    # rule CAT_ORF_annotation:
+    #     input:  expand("{{path}}/annotation/temp_splits/Batch_{nb}_contigs.contig2classification.txt", nb=range(PRODIGAL_SPLIT))
+    #     output: "{path}/annotation/CAT_contigs_taxonomy.tsv"
+    #     log:    "{path}/annotation/CAT_ORF_annotation.log"
+    #     resources:
+    #         slurm_partition = get_resource("partition"),
+    #         mem_mb          = get_resource("mem"),
+    #     shell: "cat {input} > {output} &>{log}"
 
 # ================================================================== #
 #  ORIGINAL: 16S / BLCA  (unchanged)
