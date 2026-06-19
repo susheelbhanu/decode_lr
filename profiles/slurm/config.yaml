@@ -25,7 +25,8 @@ default-resources:
   - time="1-00:00:00" 
 
 # dynamic submission: partition/mem from {resources.*}, qos/time from cluster-config
-cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {resources.mem_mb} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"
+cluster: "sbatch --partition {cluster.partition} --cpus-per-task={threads} --mem {cluster.mem} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"
+# cluster: "sbatch --partition {resources.slurm_partition} --cpus-per-task={threads} --mem {cluster.mem} --qos {cluster.qos} --time {cluster.time} -J {cluster.job-name} -o slurm/%x-%j.out -e slurm/%x-%j.err"
 
 # go on with independent jobs if a job fails
 keep-going: True
