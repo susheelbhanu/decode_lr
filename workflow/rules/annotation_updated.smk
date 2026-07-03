@@ -296,6 +296,8 @@ if "cog_db" in ANNOTATION_CFG:
         input:   "{path}.faa"
         output:  "{path}.cogs.tsv"
         params:  db = COG_DB
+        threads: 32
+        priority: 95
         log:     "{path}_cog.log"
         resources:
             slurm_partition = get_resource("partition"),

@@ -175,6 +175,9 @@ annotation:
   # CheckM2 diamond database (for MAG quality — used in binning step, listed here for completeness)
   checkm2: /ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/databases/checkm2/CheckM2_database/uniref100.KO.1.dmnd
 
+  # COG database
+  cog_db: "/ei/.project-scratch/0/0e51ef86-0156-4e79-ad12-c5411c0a5496/seb/repos/Metahood/scg_data"
+
   # Diamond databases — add or remove as needed
   diamond:
     CARD:

@@ -43,12 +43,12 @@ cat_orfs:
 
 # ── Step 2: KO annotation ─────────────────────────────────────────────
 kofamscan_direct:
-  time: "7-00:00:00"
+  time: "14-00:00:00"
   partition: "ei-long"
 
 # Original nested-snakemake KO (kept, not used in updated chain)
 koannotation:
-  time: "7-00:00:00"
+  time: "14-00:00:00"
   partition: "ei-long"
 
 # ── Step 3: SCG detection ─────────────────────────────────────────────
@@ -58,8 +58,9 @@ hmmsearch:
   mem: "300000"
 
 Batch_rpsblast:
-  time: "4-00:00:00"
-  partition: "ei-medium"
+  time: "14-00:00:00"
+  partition: "ei-largemem"
+  mem: "300000"
 
 parse_scg_whole:
   time: "0-04:00:00"
@@ -114,13 +115,13 @@ annotation_diamond:
 
 # ── CAT taxonomy (whole-fasta, uses pyrodigal contigs.faa) ───────────
 CAT_annotation:
-  time: "7-00:00:00"
+  time: "14-00:00:00"
   partition: "ei-largemem"
   mem: "300000"
 
 # ── 16S / BLCA ────────────────────────────────────────────────────────
 identify_rRNA:
-  time: "7-00:00:00"
+  time: "14-00:00:00"
   partition: "ei-medium"
 
 BLCA:
