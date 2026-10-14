@@ -167,6 +167,14 @@ def get_bulk_hifi_reads(wildcards):
         )
     return [hifi_path_for_sample(s) for s in BULK_SAMPLES]
 
+def get_all_hifi_reads(wildcards):
+    """List of HiFi files for the co-assembly of all HiFi samples (bulk + rhizo)."""
+    if not isinstance(cfg_samples, Mapping):
+        raise WorkflowError(
+            "All-HiFi co-assembly requested but 'samples' is not an inline dict with 'bulk'/'rhizo' entries."
+        )
+    return [hifi_path_for_sample(s) for s in ALL_HIFI_SAMPLES]
+
 def get_rhizo_hifi_reads(wildcards):
     """List of HiFi files for rhizo co-assembly."""
     if not isinstance(cfg_samples, Mapping):

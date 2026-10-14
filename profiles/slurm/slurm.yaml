@@ -30,6 +30,16 @@ metamdbg_hybrid_b26:
   partition: "ei-largemem"
   mem: "1024000"
 
+metamdbg_hifi_coassembly_all:
+  time: "30-00:00:00"
+  partition: "ei-largemem"
+  mem: "2000000"
+
+metamdbg_hybrid_coassembly_all:
+  time: "30-00:00:00"
+  partition: "ei-largemem"
+  mem: "2000000"
+
 metamdbg_hybrid_coassembly_bulk:
   time: "21-00:00:00"
   partition: "ei-largemem"

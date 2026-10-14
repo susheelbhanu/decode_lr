@@ -24,11 +24,17 @@ include:
 TARGETS = []
 
 # ASSEMBLY
-if "lr_assembly" in config["steps"]:
+if "lr_assembly" in config["steps"] or "lr_coassembly" in config["steps"]:
     include:
         "rules/metamdbg_updated.smk"
+if "lr_assembly" in config["steps"]:
     TARGETS += [
         "status/lr_assembly_new_v1.4.done"
+    ]
+# CO-ASSEMBLY of all HiFi (+ ONT)
+if "lr_coassembly" in config["steps"]:
+    TARGETS += [
+        "status/lr_coassembly_all_v1.4.done"
     ]
 
 # MAGS

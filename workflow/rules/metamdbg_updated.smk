@@ -139,3 +139,55 @@ rule metamdbg_hybrid_coassembly_bulk:
         (date && metaMDBG asm --in-ont {params.hifi_list_str} {input.ont_read} \
         --out-dir $(dirname {output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
         """
+
+# -----------------------------------------------------------------
+# Co-assemblies of ALL long-read data (metaMDBG v1.4)
+#   hifi_coassembly_all    : all HiFi samples (bulk + rhizo)
+#   hybrid_coassembly_all  : all HiFi samples + b26 ONT
+#     (HiFi and ONT reads both passed via --in-ont, as in the other hybrid rules)
+# -----------------------------------------------------------------
+rule lr_coassembly_all:
+    input:
+        os.path.join(RESULTS_DIR, "assemblies_v1.4/hifi_coassembly_all/contigs.fasta.gz"),
+        os.path.join(RESULTS_DIR, "assemblies_v1.4/hybrid_coassembly_all/contigs.fasta.gz")
+    output:
+        touch("status/lr_coassembly_all_v1.4.done")
+
+rule metamdbg_hifi_coassembly_all:
+    input:
+        reads = get_all_hifi_reads
+    output:
+        contigs = os.path.join(RESULTS_DIR, "assemblies_v1.4/hifi_coassembly_all/contigs.fasta.gz")
+    params:
+        opts = config["metamdbg"].get("opts", "")
+    threads:
+        config["metamdbg"]["threads"]
+    singularity:
+        SIF_IMAGE
+    log:
+        os.path.join(LOG_DIR, "metamdbg_hifi_coassembly_all.log")
+    shell:
+        """
+        (date && metaMDBG asm --in-hifi {input.reads} --out-dir $(dirname {output.contigs}) \
+        --threads {threads} {params.opts} && date) &> >(tee {log})
+        """
+
+rule metamdbg_hybrid_coassembly_all:
+    input:
+        hifi = get_all_hifi_reads,
+        ont  = ONT_FILE
+    output:
+        contigs = os.path.join(RESULTS_DIR, "assemblies_v1.4/hybrid_coassembly_all/contigs.fasta.gz")
+    params:
+        opts = config["metamdbg"].get("opts", "")
+    threads:
+        config["metamdbg"]["threads"]
+    singularity:
+        SIF_IMAGE
+    log:
+        os.path.join(LOG_DIR, "metamdbg_hybrid_coassembly_all.log")
+    shell:
+        """
+        (date && metaMDBG asm --in-ont {input.hifi} {input.ont} \
+        --out-dir $(dirname {output.contigs}) --threads {threads} {params.opts} && date) &> >(tee {log})
+        """
