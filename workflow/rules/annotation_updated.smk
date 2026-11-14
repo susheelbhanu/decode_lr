@@ -198,7 +198,7 @@ rule prepare_contigs:
     resources:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
-    shell: "gunzip -c {input} > {output} &>{log}"
+    shell: "gunzip -c {input} > {output} 2> {log}"   # stderr only (&> after > sent the contigs to the log)
 
 # ================================================================== #
 #  STEP 1 — PYRODIGAL  (whole-fasta, replaces split→prodigal→cat)
@@ -379,7 +379,7 @@ if "cog_db" in ANNOTATION_CFG:
         singularity: SIF_PYTHONENV
         shell: """
             {SCRIPTS}/Filter_Cogs.py {input} \
-                --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output} &>{log}
+                --cdd_cog_file {SCG_DATA}/cdd_to_cog.tsv > {output} 2>{log}
         """
 else:
     rule parse_scg_whole:
@@ -413,7 +413,7 @@ rule extract_SCG_sequences:
     shell: """
         {SCRIPTS}/Extract_SCG.py {input.fna} {input.annotation} \
             {SCG_DATA}/scg_cogs_min0.97_max1.03_unique_genera.txt \
-            {input.gff} > {output} &>{log}
+            {input.gff} > {output} 2>{log}
     """
 
 rule cluster_SCG:
@@ -586,7 +586,7 @@ rule annotation_diamond:
             -D {params.annotation} \
             -B {params.Bitscore} -E {params.Evalue} -P {params.PID} \
             -R {params.subject_pid} -C {params.subject_cov} -Q {params.query_cov} \
-            > {output} &>{log}
+            > {output} 2>{log}
     """
 
 # ================================================================== #
@@ -770,7 +770,7 @@ rule identify_rRNA:
         slurm_partition = get_resource("partition"),
         mem_mb          = get_resource("mem"),
     singularity: SIF_BARRNAP
-    shell: "barrnap --threads {threads} {input} > {output} &>{log}"
+    shell: "barrnap --threads {threads} {input} > {output} 2>{log}"
 
 localrules: extract_rna_seq
 
